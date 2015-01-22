@@ -66,6 +66,9 @@ int main(int argc, char* argv[]) {
     cout << *pMatrix2 << endl;
     cout << "Output matrix C" << endl;
     cout << *pMatrix3 << endl;
+    cout << "Quadrants I and II of C added together: " << endl;
+    Matrix* pMatrix4 = pMatrix3->addSquareSubmatrices(4,0,0,0,4);
+    cout << *pMatrix4 << endl;
     /*
     cout << "Number of multiplications: " << pMatrix3->_numMultiplications << endl << endl;;
     cout << "Number of additions: " << pMatrix3->_numAdditions << endl;
