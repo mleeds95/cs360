@@ -173,14 +173,19 @@ Matrix* operator-(const Matrix& m1, const Matrix& m2) {
 
 // This takes four indices, assumes they refer to two square submatrices
 // with the same dimensions and adds them, returning the result.
-Matrix* Matrix::addSquareSubmatrices(int n, int rowStart, int colStart, int rowStart2, int colStart2) {
+// N is the size of each submatrix. subtract enables subtraction instead.
+Matrix* Matrix::addSquareSubmatrices(bool subtract, int n, int rowStart, int colStart, int rowStart2, int colStart2) {
     Matrix* pMatrix = new Matrix(n);
+    //int factor = (subtract ? -1 : 1);
     int i, j, k, l;
     k = rowStart2;
     for (i = rowStart; i < rowStart + n; i++) {
         l = colStart2;
         for (j = colStart; j < colStart + n; j++) {
-            pMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] + this->_matrix[k][l];
+            if (subtract)
+                pMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] - this->_matrix[k][l];
+            else
+                pMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] + this->_matrix[k][l];
             l++;
         }
         k++;

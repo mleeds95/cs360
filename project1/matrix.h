@@ -15,7 +15,7 @@ class Matrix {
         ~Matrix();
         int findMaxMagnitude() const;
         void zeroFillExtras();
-        Matrix* addSquareSubmatrices(int n, int rowStart, int colStart, int rowStart2, int colStart2);
+        Matrix* addSquareSubmatrices(bool subtract, int n, int rowStart, int colStart, int rowStart2, int colStart2);
         friend ostream& operator<<(ostream& os, const Matrix& m);
         friend Matrix* operator*(const Matrix& m1, const Matrix& m2);
         friend Matrix* operator+(const Matrix& m1, const Matrix& m2);
