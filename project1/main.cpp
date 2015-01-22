@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
         bool syntaxError = false;
         if (arg1 == "-n") {
             try {
-                n = stoi(arg2);
+                n = atoi(arg2.c_str());
             } catch (const invalid_argument& err) {
                 syntaxError = true;
             }
@@ -41,18 +41,18 @@ int main(int argc, char* argv[]) {
         }
     } else {
         // Assume we're supposed to be reading data from a file.
-        ifstream infile(filename);
-        if (!infile.is_open()) {
+        ifstream inFile(filename);
+        if (!inFile.is_open()) {
             cout << "Error: File '" << filename << "' not found or inaccessible.\n";
             return 2;
         } else {
             // Assume the data file is formatted correctly.
             string line1;
-            infile >> line1;
-            n = stoi(line1.substr(2));
-            infile.close();
-            pMatrix1 = new Matrix(filename, n, 0);
-            pMatrix2 = new Matrix(filename, n, 1);
+            inFile >> line1;
+            n = atoi(line1.substr(2).c_str());
+            pMatrix1 = new Matrix(inFile, n, 0);
+            pMatrix2 = new Matrix(inFile, n, 1);
+            inFile.close();
         }
     }
     // At this point, matrix1 and matrix2 should be initialized.

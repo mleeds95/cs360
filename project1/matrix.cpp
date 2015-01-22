@@ -1,6 +1,6 @@
 // File: matrix.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-01-20
+// Last Edit: 2015-01-21
 
 #include "matrix.h"
 #include <iostream>
@@ -9,10 +9,14 @@
 #include <cstdlib>
 #include <sstream>
 #include <stdexcept>
+#include <cmath>
 
 // This constructor allocates space for the matrix, but that's it.
 Matrix::Matrix(int size) {
-    this->_size = size;
+    this->_originalSize = size;
+    // Calculate a dimension that's guaranteed to be a power of 2.
+    int base2size = pow(2, ceil(log(size) / log(2)));
+    this->_size = base2size;
     this->_matrix = new int*[this->_size];
     for (int i = 0; i < this->_size; i++) {
         this->_matrix[i] = new int[this->_size];
@@ -21,33 +25,38 @@ Matrix::Matrix(int size) {
 
 // This constructor allocates space and fills the matrix with random values.
 Matrix::Matrix(int size, unsigned int seed) {
-    this->_size = size;
+    this->_originalSize = size;
+    // Calculate a dimension that's guaranteed to be a power of 2.
+    int base2size = pow(2, ceil(log(size) / log(2)));
+    this->_size = base2size;
     this->_matrix = new int*[this->_size];
     for (int i = 0; i < this->_size; i++) {
         this->_matrix[i] = new int[this->_size];
     }
     // Fill array with random values 0-9
     srand(seed);
-    for (int i = 0; i < this->_size; i++) {
-        for (int j = 0; j < this->_size; j++) {
+    for (int i = 0; i < this->_originalSize; i++) {
+        for (int j = 0; j < this->_originalSize; j++) {
             this->_matrix[i][j] = rand() % 10;
         }
     }
-    this->_maxMagnitude = this->findMaxMagnitude();
+    this->zeroFillExtras();
+    this->findMaxMagnitude();
 }
 
 // This constructor allocates space and fills the matrix with values from a file.
-// It is assumed that the file is formatted correctly.
-Matrix::Matrix(string filename, int size, int arrNum) {
-    this->_size = size;
-    this->_matrix = new int*[size];
-    for (int i = 0; i < size; i++) {
-        this->_matrix[i] = new int[size];
+// It is assumed that the file is formatted correctly, and that the 
+// ifstream object is seeked to the right position before being passed to this.
+Matrix::Matrix(ifstream& inFile, int size, int arrNum) {
+    this->_originalSize = size;
+    // Calculate a dimension that's guaranteed to be a power of 2.
+    int base2size = pow(2, ceil(log(size) / log(2)));
+    this->_size = base2size;
+    this->_matrix = new int*[this->_size];
+    for (int i = 0; i < this->_size; i++) {
+        this->_matrix[i] = new int[this->_size];
     }
-    ifstream inFile(filename.c_str());
-    // seek directly to the appropriate part of the file
-    int lineLength = size * 2; // values, commas, end of line
-    inFile.seekg(4 + (arrNum * (lineLength * size)));
+    // For each line, interpret everything but commas as integers
     for (int i = 0; i < size; i++) {
         string line = "";
         inFile >> line;
@@ -62,8 +71,8 @@ Matrix::Matrix(string filename, int size, int arrNum) {
             }
         }
     }
-    inFile.close();
-    this->_maxMagnitude = this->findMaxMagnitude();
+    this->zeroFillExtras();
+    this->findMaxMagnitude();
 }
 
 Matrix::~Matrix() {
@@ -73,9 +82,27 @@ Matrix::~Matrix() {
     delete []this->_matrix;
 }
 
+// Some matrices are expanded to dimensions that are powers of two, so
+// this fills that extra space with zeroes. The code is designed not
+// to waste much time on ones that weren't expanded.
+void Matrix::zeroFillExtras() {
+    // Zero fill extra rows.
+    for (int i = _originalSize; i < this->_size; i++) {
+        for (int j = 0; j < this->_size; j++) {
+            this->_matrix[i][j] = 0;
+        }
+    }
+    // Zero fill extra columns.
+    for (int j = _originalSize; j < this->_size; j++) {
+        for (int i = 0; i < this->_originalSize; i++) {
+            this->_matrix[i][j] = 0;
+        }
+    }
+}
+
 // Find the maximum magnitude value in the matrix. This can be useful for 
 // determining how wide to make columns when printing it out.
-int Matrix::findMaxMagnitude() {
+void Matrix::findMaxMagnitude() {
     int maxVal = 0;
     //cout << this[0] << endl;
     for (int i = 0; i < this->_size; i++) {
@@ -85,7 +112,8 @@ int Matrix::findMaxMagnitude() {
             }
         }
     }
-    return maxVal;
+    this->_maxMagnitude = maxVal;
+    return;
 }
 
 // This overloads the redirection operator so matrices can be printed using cout.
@@ -119,5 +147,14 @@ Matrix* operator*(const Matrix& m1, const Matrix& m2) {
             pProductMatrix->_matrix[i][j] = (m1._matrix[i][j] * m2._matrix[i][j]);
         }
     }
+    pProductMatrix->findMaxMagnitude();
     return pProductMatrix;
+}
+
+Matrix* operator+(const Matrix& m1, const Matrix& m2) {
+    //TODO
+}
+
+Matrix* operator-(const Matrix& m1, const Matrix& m2) {
+    //TODO
 }

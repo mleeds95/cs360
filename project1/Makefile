@@ -3,7 +3,7 @@
 # Last Edit: 2015-01-20
 
 CC=g++
-CFLAGS=-std=c++11
+CFLAGS=
 OBJ=main.o matrix.o
 
 project1: $(OBJ)
