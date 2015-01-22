@@ -11,7 +11,7 @@ class Matrix {
     public:
         Matrix(int size);
         Matrix(int size, unsigned int seed);
-        Matrix(ifstream& inFile, int size, int arrNum);
+        Matrix(ifstream& inFile, int size);
         ~Matrix();
         int findMaxMagnitude() const;
         void zeroFillExtras();
