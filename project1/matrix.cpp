@@ -41,7 +41,6 @@ Matrix::Matrix(int size, unsigned int seed) {
         }
     }
     this->zeroFillExtras();
-    this->findMaxMagnitude();
 }
 
 // This constructor allocates space and fills the matrix with values from a file.
@@ -72,7 +71,6 @@ Matrix::Matrix(ifstream& inFile, int size) {
         }
     }
     this->zeroFillExtras();
-    this->findMaxMagnitude();
 }
 
 Matrix::~Matrix() {
@@ -102,9 +100,8 @@ void Matrix::zeroFillExtras() {
 
 // Find the maximum magnitude value in the matrix. This can be useful for 
 // determining how wide to make columns when printing it out.
-void Matrix::findMaxMagnitude() {
+int Matrix::findMaxMagnitude() const{
     int maxVal = 0;
-    //cout << this[0] << endl;
     for (int i = 0; i < this->_size; i++) {
         for (int j = 0; j < this->_size; j++) {
             if (abs(this->_matrix[i][j]) > maxVal) {
@@ -112,14 +109,13 @@ void Matrix::findMaxMagnitude() {
             }
         }
     }
-    this->_maxMagnitude = maxVal;
-    return;
+    return maxVal;
 }
 
 // This overloads the redirection operator so matrices can be printed using cout.
 // Values are printed in fixed-width columns, right-aligned.
 ostream& operator<<(ostream& os, const Matrix& m) {
-    int maxVal = m._maxMagnitude;
+    int maxVal = m.findMaxMagnitude();
     string maxValString;
     ostringstream convert;
     convert << maxVal;
@@ -147,14 +143,30 @@ Matrix* operator*(const Matrix& m1, const Matrix& m2) {
             pProductMatrix->_matrix[i][j] = (m1._matrix[i][j] * m2._matrix[i][j]);
         }
     }
-    pProductMatrix->findMaxMagnitude();
     return pProductMatrix;
 }
 
+// This overloads the addition operator to add two square matrices 
+// by adding their respective elements.
 Matrix* operator+(const Matrix& m1, const Matrix& m2) {
-    //TODO
+    int n = m1._size;
+    Matrix* pSumMatrix = new Matrix(n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            pSumMatrix->_matrix[i][j] = (m1._matrix[i][j] + m2._matrix[i][j]);
+        }
+    }
+    return pSumMatrix; 
 }
 
+// This overloads the subtraction operator for (square) matrices.
 Matrix* operator-(const Matrix& m1, const Matrix& m2) {
-    //TODO
+    int n = m1._size;
+    Matrix* pSumMatrix = new Matrix(n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            pSumMatrix->_matrix[i][j] = (m1._matrix[i][j] - m2._matrix[i][j]);
+        }
+    }
+    return pSumMatrix; 
 }

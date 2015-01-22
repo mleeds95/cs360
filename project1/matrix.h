@@ -13,7 +13,7 @@ class Matrix {
         Matrix(int size, unsigned int seed);
         Matrix(ifstream& inFile, int size, int arrNum);
         ~Matrix();
-        void findMaxMagnitude();
+        int findMaxMagnitude() const;
         void zeroFillExtras();
         friend ostream& operator<<(ostream& os, const Matrix& m);
         friend Matrix* operator*(const Matrix& m1, const Matrix& m2);
@@ -24,7 +24,6 @@ class Matrix {
         int** _matrix;
         int _size;
         int _originalSize;
-        int _maxMagnitude;
         int _numMultiplications;
         int _numAdditions;
 };
