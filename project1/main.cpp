@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     }
     // At this point, matrix1 and matrix2 should be initialized.
     // Use the overloaded * operator to take the product of the matrices.
-    Matrix* pMatrix3 = (*pMatrix1) * (*pMatrix2);
+    Matrix* pMatrix3 = (*pMatrix1) + (*pMatrix2);
     // Output some useful info.
     cout << "N=" <<  n << endl << endl;
     cout << "Input matrix A" << endl;
