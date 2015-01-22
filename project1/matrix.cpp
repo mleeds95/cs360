@@ -47,7 +47,7 @@ Matrix::Matrix(int size, unsigned int seed) {
 // This constructor allocates space and fills the matrix with values from a file.
 // It is assumed that the file is formatted correctly, and that the 
 // ifstream object is seeked to the right position before being passed to this.
-Matrix::Matrix(ifstream& inFile, int size, int arrNum) {
+Matrix::Matrix(ifstream& inFile, int size) {
     this->_originalSize = size;
     // Calculate a dimension that's guaranteed to be a power of 2.
     int base2size = pow(2, ceil(log(size) / log(2)));

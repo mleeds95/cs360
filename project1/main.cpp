@@ -50,12 +50,12 @@ int main(int argc, char* argv[]) {
             string line1;
             inFile >> line1;
             n = atoi(line1.substr(2).c_str());
-            pMatrix1 = new Matrix(inFile, n, 0);
-            pMatrix2 = new Matrix(inFile, n, 1);
+            pMatrix1 = new Matrix(inFile, n);
+            pMatrix2 = new Matrix(inFile, n);
             inFile.close();
         }
     }
-    // At this point, matrix1 and matrix2 should be initialized.
+    // At this point, pMatrix1 and pMatrix2 should point to initialized Matrices.
     // Use the overloaded * operator to take the product of the matrices.
     Matrix* pMatrix3 = (*pMatrix1) * (*pMatrix2);
     // Output some useful info.
