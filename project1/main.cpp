@@ -1,7 +1,7 @@
 // File: main.cpp
 // Author: Matthew Leeds
 // For: CS 360, Project 1
-// Last Edit: 2015-01-20
+// Last Edit: 2015-01-22
 
 #include <iostream>
 #include <cstdlib>
@@ -12,6 +12,8 @@
 #include "matrix.h"
 
 using namespace std;
+
+Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart, int colStart, int rowStart2, int colStart2);
 
 int main(int argc, char* argv[]) {
     int n; // matrix size
@@ -56,8 +58,8 @@ int main(int argc, char* argv[]) {
         }
     }
     // At this point, pMatrix1 and pMatrix2 should point to initialized Matrices.
-    // Use the overloaded * operator to take the product of the matrices.
-    Matrix* pMatrix3 = (*pMatrix1) + (*pMatrix2);
+    // Use Strassen's method to take the product of the matrices.
+    Matrix* pMatrix3 = strassenMultiply(pMatrix1, pMatrix2, n, 0, 0, 0, 0);
     // Output some useful info.
     cout << "N=" <<  n << endl << endl;
     cout << "Input matrix A" << endl;
@@ -66,12 +68,6 @@ int main(int argc, char* argv[]) {
     cout << *pMatrix2 << endl;
     cout << "Output matrix C" << endl;
     cout << *pMatrix3 << endl;
-    cout << "Quadrants I and II of C added together: " << endl;
-    Matrix* pMatrix4 = pMatrix3->addSquareSubmatrices(false,4,0,0,0,4);
-    cout << *pMatrix4 << endl;
-    cout << "Subtraction: " << endl;
-    pMatrix4 = pMatrix3->addSquareSubmatrices(true,4,0,0,0,4);
-    cout << *pMatrix4 << endl;
     /*
     cout << "Number of multiplications: " << pMatrix3->_numMultiplications << endl << endl;;
     cout << "Number of additions: " << pMatrix3->_numAdditions << endl;
