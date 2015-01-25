@@ -1,7 +1,7 @@
 // File: main.cpp
 // Author: Matthew Leeds
 // For: CS 360, Project 1
-// Last Edit: 2015-01-22
+// Last Edit: 2015-01-24
 
 #include <iostream>
 #include <cstdlib>
@@ -13,7 +13,8 @@
 
 using namespace std;
 
-Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart, int colStart, int rowStart2, int colStart2);
+Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart,  int colStart, 
+                                                          int rowStart2, int colStart2);
 
 int main(int argc, char* argv[]) {
     int n; // matrix size
@@ -68,10 +69,8 @@ int main(int argc, char* argv[]) {
     cout << *pMatrix2 << endl;
     cout << "Output matrix C" << endl;
     cout << *pMatrix3 << endl;
-    /*
-    cout << "Number of multiplications: " << pMatrix3->_numMultiplications << endl << endl;;
-    cout << "Number of additions: " << pMatrix3->_numAdditions << endl;
-    */
+    cout << "Number of multiplications: " << pMatrix3->getNumMultiplications() << endl << endl;;
+    cout << "Number of additions: " << pMatrix3->getNumAdditions() << endl;
     delete pMatrix1;
     delete pMatrix2;
     delete pMatrix3;

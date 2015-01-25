@@ -1,6 +1,6 @@
 // File: matrix.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-01-23
+// Last Edit: 2015-01-24
 // This class defines a matrix that can be used for multiplication/addition/subtraction.
 
 #include "matrix.h"
@@ -12,13 +12,15 @@
 #include <stdexcept>
 #include <cmath>
 
-// This constructor allocates space for the matrix, but that's it.
+// This constructor just allocates space for the matrix.
 Matrix::Matrix(int size) {
     this->_size = size;
     this->_matrix = new int*[this->_size];
     for (int i = 0; i < this->_size; i++) {
         this->_matrix[i] = new int[this->_size];
     }
+    this->_numMultiplications = 0;
+    this->_numAdditions = 0;
 }
 
 // This constructor allocates space and fills the matrix with random values.
@@ -35,6 +37,8 @@ Matrix::Matrix(int size, unsigned int seed) {
             this->_matrix[i][j] = rand() % 10;
         }
     }
+    this->_numMultiplications = 0;
+    this->_numAdditions = 0;
 }
 
 // This constructor allocates space and fills the matrix with values from a file.
@@ -61,6 +65,8 @@ Matrix::Matrix(ifstream& inFile, int size) {
             }
         }
     }
+    this->_numMultiplications = 0;
+    this->_numAdditions = 0;
 }
 
 Matrix::~Matrix() {
@@ -119,40 +125,41 @@ Matrix* operator+(const Matrix& m1, const Matrix& m2) {
 // This overloads the subtraction operator for (square) matrices.
 Matrix* operator-(const Matrix& m1, const Matrix& m2) {
     int n = m1._size;
-    Matrix* pSumMatrix = new Matrix(n);
+    Matrix* pDifferenceMatrix = new Matrix(n);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            pSumMatrix->_matrix[i][j] = (m1._matrix[i][j] - m2._matrix[i][j]);
+            pDifferenceMatrix->_matrix[i][j] = (m1._matrix[i][j] - m2._matrix[i][j]);
         }
     }
-    return pSumMatrix; 
+    return pDifferenceMatrix; 
 }
 
 // This takes four indices, assumes they refer to two square submatrices
 // with the same dimensions and adds them, returning the result.
 // N is the size of each submatrix. subtract enables subtraction instead.
-Matrix* Matrix::addSquareSubmatrices(bool subtract, int n, int rowStart, int colStart, int rowStart2, int colStart2) const {
-    Matrix* pMatrix = new Matrix(n);
+Matrix* Matrix::addSquareSubmatrices(bool subtract, int n, int rowStart,  int colStart, 
+                                                           int rowStart2, int colStart2) const {
+    Matrix* pSumMatrix = new Matrix(n);
     int i, j, k, l;
     k = rowStart2;
     for (i = rowStart; i < rowStart + n; i++) {
         l = colStart2;
         for (j = colStart; j < colStart + n; j++) {
             if (subtract)
-                pMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] - this->_matrix[k][l];
+                pSumMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] - this->_matrix[k][l];
             else
-                pMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] + this->_matrix[k][l];
+                pSumMatrix->_matrix[i-rowStart][j-colStart] = this->_matrix[i][j] + this->_matrix[k][l];
             l++;
         }
         k++;
     }
-    return pMatrix;
+    return pSumMatrix;
 }
 
 // This takes two pointers to matrices and adds or subtracts NxN numbers
-// from them, putting the result into this starting at (row, col). If
-// append is true, it adds the sums to the current values.
-void Matrix::addExternalMatrices(bool subtract, bool append, int n, int row, int col, Matrix* pM1, Matrix* pM2) {
+// from them, putting the result into 'this' starting at (row, col).
+// If append is true, it adds the sums to the current values.
+void Matrix::addExternalMatrices(Matrix* pM1, bool subtract, Matrix* pM2, bool append, int n, int row, int col) {
     int i, j;
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++) {
@@ -170,4 +177,10 @@ void Matrix::addExternalMatrices(bool subtract, bool append, int n, int row, int
         }
     }
     return;
+}
+
+// This adds the multiplication and addition counts from the given matrix.
+void Matrix::addOperationCounts(Matrix* pM) {
+    this->_numMultiplications += pM->_numMultiplications;
+    this->_numAdditions += pM->_numAdditions;
 }

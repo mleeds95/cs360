@@ -14,12 +14,17 @@ class Matrix {
         Matrix(ifstream& inFile, int size);
         ~Matrix();
         int findMaxMagnitude() const;
-        Matrix* addSquareSubmatrices(bool subtract, int n, int rowStart, int colStart, int rowStart2, int colStart2) const;
-        void addExternalMatrices(bool subtract, bool append, int n, int row, int col, Matrix* pM1, Matrix* pM2);
+        Matrix* addSquareSubmatrices(bool subtract, int n, int rowStart,  int colStart, 
+                                                           int rowStart2, int colStart2) const;
+        void addExternalMatrices(Matrix* pM1, bool subtract, Matrix* pM2, bool append, int n, int row, int col);
+        void addOperationCounts(Matrix* pM);
         friend ostream& operator<<(ostream& os, const Matrix& m);
         friend Matrix* operator+(const Matrix& m1, const Matrix& m2);
         friend Matrix* operator-(const Matrix& m1, const Matrix& m2);
-        friend Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart, int colStart, int rowStart2, int colStart2);
+        friend Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart,  int colStart, 
+                                                                         int rowStart2, int colStart2);
+        inline int getNumMultiplications() {return _numMultiplications;}
+        inline int getNumAdditions() {return _numAdditions;}
 
     private:
         int** _matrix;
