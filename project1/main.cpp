@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     Matrix* pMatrix1;
     Matrix* pMatrix2;
     if (argc == 3) {
-        // Assume they're specifying the array size using '-n #'.
+        // See if they're specifying the array size using '-n #'.
         string arg1 = argv[1];
         string arg2 = argv[2];
         bool syntaxError = false;
@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
             } catch (const invalid_argument& err) {
                 syntaxError = true;
             }
+            if (n <= 0) syntaxError = true;
         } else {
             syntaxError = true;
         }
@@ -69,7 +70,9 @@ int main(int argc, char* argv[]) {
     cout << *pMatrix2 << endl;
     cout << "Output matrix C" << endl;
     cout << *pMatrix3 << endl;
+    // Output the total number of multiplications from all levels of recursion.
     cout << "Number of multiplications: " << pMatrix3->getNumMultiplications() << endl << endl;;
+    // This number includes additions and subtractions.
     cout << "Number of additions: " << pMatrix3->getNumAdditions() << endl;
     delete pMatrix1;
     delete pMatrix2;
