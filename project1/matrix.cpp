@@ -1,6 +1,6 @@
 // File: matrix.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-01-22
+// Last Edit: 2015-01-23
 // This class defines a matrix that can be used for multiplication/addition/subtraction.
 
 #include "matrix.h"
@@ -147,4 +147,27 @@ Matrix* Matrix::addSquareSubmatrices(bool subtract, int n, int rowStart, int col
         k++;
     }
     return pMatrix;
+}
+
+// This takes two pointers to matrices and adds or subtracts NxN numbers
+// from them, putting the result into this starting at (row, col). If
+// append is true, it adds the sums to the current values.
+void Matrix::addExternalMatrices(bool subtract, bool append, int n, int row, int col, Matrix* pM1, Matrix* pM2) {
+    int i, j;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            if (append) {
+                if (subtract)
+                    this->_matrix[i+row][j+col] += pM1->_matrix[i][j] - pM2->_matrix[i][j];
+                else
+                    this->_matrix[i+row][j+col] += pM1->_matrix[i][j] + pM2->_matrix[i][j];
+            } else {
+                if (subtract)
+                    this->_matrix[i+row][j+col] = pM1->_matrix[i][j] - pM2->_matrix[i][j];
+                else
+                    this->_matrix[i+row][j+col] = pM1->_matrix[i][j] + pM2->_matrix[i][j];
+            }
+        }
+    }
+    return;
 }

@@ -1,6 +1,6 @@
 // File: strassenMultiply.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-01-22
+// Last Edit: 2015-01-23
 
 #include <iostream>
 #include "matrix.h"
@@ -34,15 +34,17 @@ Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart, int colS
         Matrix* pP5 = strassenMultiply(pS5, pS6, halfN, 0, 0, 0, 0);
         Matrix* pP6 = strassenMultiply(pS7, pS8, halfN, 0, 0, 0, 0);
         Matrix* pP7 = strassenMultiply(pS9, pS10, halfN, 0, 0, 0, 0);
-        //TODO calculate answer
-        /*for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                pProductMatrix->_matrix[i][j] = (pM1->_matrix[i][j] * pM2->_matrix[i][j]);
-            }
-        }*/
-        //delete pS1; delete pS2; delete pS3; delete pS4; delete pS5;
-        //delete pS6; delete pS7; delete pS8; delete pS9; delete pS10;
-        //delete pP1; delete pP2; delete pP3; delete pP4; delete pP5; delete pP6; delete pP6; delete pP7;
+        // Calculate the solution product matrix.
+        pProductMatrix->addExternalMatrices(false, false, halfN, 0, 0, pP5, pP4);
+        pProductMatrix->addExternalMatrices(true, true, halfN, 0, 0, pP6, pP2);
+        pProductMatrix->addExternalMatrices(false, false, halfN, 0, halfN, pP1, pP2);
+        pProductMatrix->addExternalMatrices(false, false, halfN, halfN, 0, pP3, pP4);
+        pProductMatrix->addExternalMatrices(true, false, halfN, halfN, halfN, pP5, pP3);
+        pProductMatrix->addExternalMatrices(true, true, halfN, halfN, halfN, pP1, pP7);
+        delete pS1; delete pS2; delete pS3; delete pS4; delete pS5;
+        delete pS6; delete pS7; delete pS8; delete pS9; delete pS10;
+        delete pP1; delete pP2; delete pP3; delete pP4; delete pP5; 
+        delete pP6; delete pP7;
     }
     return pProductMatrix;
 }
