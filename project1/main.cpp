@@ -1,7 +1,7 @@
 // File: main.cpp
 // Author: Matthew Leeds
 // For: CS 360, Project 1
-// Last Edit: 2015-01-24
+// Last Edit: 2015-01-25
 
 #include <iostream>
 #include <cstdlib>
@@ -15,7 +15,6 @@ using namespace std;
 
 Matrix* strassenMultiply(Matrix* pM1, Matrix* pM2, int n, int rowStart,  int colStart, 
                                                           int rowStart2, int colStart2);
-
 int main(int argc, char* argv[]) {
     int n; // matrix size
     const char* filename = "datafile";
@@ -41,7 +40,7 @@ int main(int argc, char* argv[]) {
             return 1;
         } else {
             pMatrix1 = new Matrix(n, time(NULL));
-            pMatrix2 = new Matrix(n, time(NULL));
+            pMatrix2 = new Matrix(n, time(NULL) / 2);
         }
     } else {
         // Assume we're supposed to be reading data from a file.
