@@ -1,23 +1,15 @@
 // File: ManufacturerData.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-01
+// Last Edit: 2015-02-02
 
 #include <fstream>
 #include <string>
+#include "StringData.h"
 
 using namespace std;
 
-class ManufacturerData {
+class ManufacturerData: public StringData {
     public:
         ManufacturerData(ifstream& inFile);
         ~ManufacturerData();
-        void resizeArray(bool bigger);
-        friend ostream& operator<<(ostream& os, const ManufacturerData& m);
-        void sortByCode();
-        void sortByName();
-
-    private:
-        string** _arr;
-        int _arrSize;
-        int _numFilled;
 };
