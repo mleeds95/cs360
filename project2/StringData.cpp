@@ -51,42 +51,42 @@ void StringData::mergeSort(int start, int end) {
 
 // This merges two sorted subarrays. helper for mergeSortEvensOrOdds.
 void StringData::merge(int start, int middle, int end) {
-	// Copy the subarrays so we can overwrite the original.
-	int arr1Length = middle - start + 2;
-	int arr2Length = end - middle;
-	string* arr1[arr1Length];
-	string* arr2[arr2Length];
+    // Copy the subarrays so we can overwrite the original.
+    int arr1Length = middle - start + 2;
+    int arr2Length = end - middle;
+    string* arr1[arr1Length];
+    string* arr2[arr2Length];
     // Depending on the parity, we should either be copying each element's successor or predecessor.
     int parity = (start % 2 == 0 ? 1 : -1);
-	int i;
-	for (i = start; i <= middle; i += 2) {
-		arr1[i - start]	= _arr[i];
+    int i;
+    for (i = start; i <= middle; i += 2) {
+        arr1[i - start] = _arr[i];
         arr1[i - start + 1] = _arr[i + parity];
-	}
-	int j;
-	for (j = middle + 2; j <= end; j += 2) {
-		arr2[j - middle - 2] = _arr[j];
+    }
+    int j;
+    for (j = middle + 2; j <= end; j += 2) {
+        arr2[j - middle - 2] = _arr[j];
         arr2[j - middle - 1] = _arr[j + parity];
-	}
-	int l = 0; // arr1 counter
-	int m = 0; // arr2 counter
-	// Now merge them by copying a pair of elements from one or the other on each iteration.
-	int k; // _arr counter
-	for (k = start; k <= end; k += 2) {
-		if (l >= arr1Length) {
-			_arr[k] = arr2[m++];
-			_arr[k + parity] = arr2[m++];
-		} else if (m >= arr2Length) {
-			_arr[k] = arr1[l++];
-            _arr[k + parity] = arr1[l++];
-		} else if (*arr1[l] <= *arr2[m]) {
-			_arr[k] = arr1[l++];
-            _arr[k + parity] = arr1[l++];
-		} else {
-			_arr[k] = arr2[m++];
+    }
+    int l = 0; // arr1 counter
+    int m = 0; // arr2 counter
+    // Now merge them by copying a pair of elements from one or the other on each iteration.
+    int k; // _arr counter
+    for (k = start; k <= end; k += 2) {
+        if (l >= arr1Length) {
+            _arr[k] = arr2[m++];
             _arr[k + parity] = arr2[m++];
-		}
-	}
+        } else if (m >= arr2Length) {
+            _arr[k] = arr1[l++];
+            _arr[k + parity] = arr1[l++];
+        } else if (*arr1[l] <= *arr2[m]) {
+            _arr[k] = arr1[l++];
+            _arr[k + parity] = arr1[l++];
+        } else {
+            _arr[k] = arr2[m++];
+            _arr[k + parity] = arr2[m++];
+        }
+    }
 }
 
 // Use merge sort on _arr either for even or odd indices.
