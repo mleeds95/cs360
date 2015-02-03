@@ -15,11 +15,13 @@ class StringData {
         ~StringData() {}
         friend ostream& operator<<(ostream&, const StringData&);
         void trimQuotes(string&);
+        void sortEvensOrOdds(bool evens);
 
     protected:
         string** _arr;
         int _arrSize;
         int _numFilled;
         void resizeArray(bool bigger);
-        void mergeSortEvensOrOdds(bool evens);
+        void mergeSort(int start, int end);
+        void merge(int start, int middle, int end);
 };

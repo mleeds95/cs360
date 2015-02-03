@@ -1,6 +1,6 @@
 // File: main.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-01
+// Last Edit: 2015-02-02
 // Purpose: For CS 360, Project 2: reading and processing sales data in CSV format.
 
 #include <iostream>
@@ -23,6 +23,7 @@ int main() {
     ManufacturerData mData = ManufacturerData(manufacturersFile);
     manufacturersFile.close();
     cout << mData << endl;
+    //TODO check for duplicates
     /* Read in Sales data from the disk.
     ifstream salesFile(SALES_FILENAME);
     if (!salesFile.is_open()) {

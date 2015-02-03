@@ -12,4 +12,8 @@ class ManufacturerData: public StringData {
     public:
         ManufacturerData(ifstream& inFile);
         ~ManufacturerData();
+        void findAliases();
+
+    private:
+        string** _aliases;
 };
