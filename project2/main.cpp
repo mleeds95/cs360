@@ -22,7 +22,8 @@ int main() {
     // Initialize manufacturers data object.
     ManufacturerData mData = ManufacturerData(manufacturersFile);
     manufacturersFile.close();
-    cout << mData << endl;
+    cout << mData.data << endl;
+    mData.findAliases();
     //TODO check for duplicates
     /* Read in Sales data from the disk.
     ifstream salesFile(SALES_FILENAME);

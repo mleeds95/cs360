@@ -1,22 +1,42 @@
-// File: StringData.cpp
+// File: StringArray.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-02
+// Last Edit: 2015-02-04
 
-#include "StringData.h"
+#include "StringArray.h"
+#include <iostream>
 
 using namespace std;
 
+StringArray::StringArray(int n) {
+    _arrSize = n;
+    _arr = new string*[_arrSize];
+    _arrFilled = 0;
+}
+
+StringArray::~StringArray() {
+    for (int i = 0; i < _arrSize; i++) {
+        delete _arr[i];
+    }
+}
+
+void StringArray::append(string* s) {
+    if (_arrFilled == _arrSize)
+        resizeArray(true);
+    _arr[_arrFilled++] = s;
+}
+
 // This resizes _arr to twice as big or down to the space that's actually used,
-// depending on the 'bigger' parameter.
-void StringData::resizeArray(bool bigger) {
+// depending on the 'bigger' parameter. Of course ideally this would be part of
+// a separate data structure, but since we're using arrays this makes sense.
+void StringArray::resizeArray(bool bigger) {
     int newSize;
     if (bigger)
         newSize = _arrSize * 2;
     else
-        newSize = _numFilled;
+        newSize = _arrFilled;
     if (newSize != _arrSize) {
         string** largerArr = new string*[newSize];
-        for (int i = 0; i < _numFilled; i++) {
+        for (int i = 0; i < _arrFilled; i++) {
             largerArr[i] = _arr[i];
         }
         delete _arr;
@@ -25,19 +45,8 @@ void StringData::resizeArray(bool bigger) {
     }
 }
 
-// Trim " from both sides of a string, and replace instances of "" with ".
-void StringData::trimQuotes(string& t) {
-    if (t[0] == '"') t = t.substr(1);
-    if (t[t.length() - 1] == '"') t = t.substr(0, t.length() - 1);
-    size_t found = t.find("\"\"");
-    while (found != string::npos) {
-        t = t.erase(found, 1);
-        found = t.find("\"\"");
-    }
-}
-
 // This recurses to sort the array. helper for mergeSortEvensOrOdds.
-void StringData::mergeSort(int start, int end) {
+void StringArray::mergeSort(int start, int end) {
     if (start < end) {
         int middle = (start + end) / 2;
         // The parity of middle should match that of start.
@@ -50,7 +59,7 @@ void StringData::mergeSort(int start, int end) {
 }
 
 // This merges two sorted subarrays. helper for mergeSortEvensOrOdds.
-void StringData::merge(int start, int middle, int end) {
+void StringArray::merge(int start, int middle, int end) {
     // Copy the subarrays so we can overwrite the original.
     int arr1Length = middle - start + 2;
     int arr2Length = end - middle;
@@ -58,39 +67,45 @@ void StringData::merge(int start, int middle, int end) {
     string* arr2[arr2Length];
     // Depending on the parity, we should either be copying each element's successor or predecessor.
     int parity = (start % 2 == 0 ? 1 : -1);
-    int i;
-    for (i = start; i <= middle; i += 2) {
-        arr1[i - start] = _arr[i];
-        arr1[i - start + 1] = _arr[i + parity];
+    int l; // arr1 counter
+    int m; // arr2 counter
+    for (int i = start; i <= middle; i += 2) {
+        l = (parity == -1 ? i - start + 1 : i - start);
+        arr1[l] = _arr[i];
+        arr1[l + parity] = _arr[i + parity];
     }
-    int j;
-    for (j = middle + 2; j <= end; j += 2) {
-        arr2[j - middle - 2] = _arr[j];
-        arr2[j - middle - 1] = _arr[j + parity];
+    for (int j = middle + 2; j <= end; j += 2) {
+        m = (parity == -1 ? j - middle - 1 : j - middle - 2);
+        arr2[m] = _arr[j];
+        arr2[m + parity] = _arr[j + parity];
     }
-    int l = 0; // arr1 counter
-    int m = 0; // arr2 counter
+    l = 0;
+    m = 0;
     // Now merge them by copying a pair of elements from one or the other on each iteration.
     int k; // _arr counter
     for (k = start; k <= end; k += 2) {
         if (l >= arr1Length) {
-            _arr[k] = arr2[m++];
-            _arr[k + parity] = arr2[m++];
+            _arr[k] = arr2[m];
+            _arr[k + parity] = arr2[m + parity];
+            m += 2;
         } else if (m >= arr2Length) {
-            _arr[k] = arr1[l++];
-            _arr[k + parity] = arr1[l++];
+            _arr[k] = arr1[l];
+            _arr[k + parity] = arr1[l + parity];
+            l += 2;
         } else if (*arr1[l] <= *arr2[m]) {
-            _arr[k] = arr1[l++];
-            _arr[k + parity] = arr1[l++];
+            _arr[k] = arr1[l];
+            _arr[k + parity] = arr1[l + parity];
+            l += 2;
         } else {
-            _arr[k] = arr2[m++];
-            _arr[k + parity] = arr2[m++];
+            _arr[k] = arr2[m];
+            _arr[k + parity] = arr2[m + parity];
+            m += 2;
         }
     }
 }
 
 // Use merge sort on _arr either for even or odd indices.
-void StringData::sortEvensOrOdds(bool evens) {
+void StringArray::sortEvensOrOdds(bool evens) {
     if (evens)
         mergeSort(0, _arrSize - 2);
     else
@@ -98,9 +113,13 @@ void StringData::sortEvensOrOdds(bool evens) {
 }
 
 // Print the array to stdout, one record per line.
-ostream& operator<<(ostream& os, const StringData& s) {
+ostream& operator<<(ostream& os, const StringArray& s) {
     for (int i = 0; i < s._arrSize; i++) {
         os << *s._arr[i] << endl;
     }
     return os;
+}
+
+string* StringArray::operator[](int index) {
+    return _arr[index];
 }

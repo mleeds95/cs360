@@ -1,19 +1,17 @@
 // File: ManufacturerData.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-02
+// Last Edit: 2015-02-03
 
 #include <fstream>
-#include <string>
-#include "StringData.h"
+#include "StringArray.h"
 
 using namespace std;
 
-class ManufacturerData: public StringData {
+class ManufacturerData {
     public:
         ManufacturerData(ifstream& inFile);
-        ~ManufacturerData();
+        ~ManufacturerData() {}
         void findAliases();
-
-    private:
-        string** _aliases;
+        StringArray data;
+        StringArray aliases;
 };
