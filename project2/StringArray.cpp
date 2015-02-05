@@ -39,7 +39,7 @@ void StringArray::resizeArray(bool bigger) {
         for (int i = 0; i < _arrFilled; i++) {
             largerArr[i] = _arr[i];
         }
-        delete _arr;
+        delete[] _arr;
         _arr = largerArr;
         _arrSize = newSize;
     }
@@ -63,25 +63,22 @@ void StringArray::merge(int start, int middle, int end) {
     // Copy the subarrays so we can overwrite the original.
     int arr1Length = middle - start + 2;
     int arr2Length = end - middle;
-    string* arr1[arr1Length];
-    string* arr2[arr2Length];
+    string** arr1 = new string*[arr1Length];
+    string** arr2 = new string*[arr2Length];
     // Depending on the parity, we should either be copying each element's successor or predecessor.
     int parity = (start % 2 == 0 ? 1 : -1);
-    int l; // arr1 counter
-    int m; // arr2 counter
+    int startParity = (start % 2 == 0 ? 0 : 1);
     for (int i = start; i <= middle; i += 2) {
-        l = (parity == -1 ? i - start + 1 : i - start);
-        arr1[l] = _arr[i];
-        arr1[l + parity] = _arr[i + parity];
+        arr1[i - start + startParity] = _arr[i];
+        arr1[i - start + startParity + parity] = _arr[i + parity];
     }
     for (int j = middle + 2; j <= end; j += 2) {
-        m = (parity == -1 ? j - middle - 1 : j - middle - 2);
-        arr2[m] = _arr[j];
-        arr2[m + parity] = _arr[j + parity];
+        arr2[j - middle - 2 + startParity] = _arr[j];
+        arr2[j - middle - 2 + startParity + parity] = _arr[j + parity];
     }
-    l = 0;
-    m = 0;
     // Now merge them by copying a pair of elements from one or the other on each iteration.
+    int l = startParity; // arr1 counter
+    int m = startParity; // arr2 counter
     int k; // _arr counter
     for (k = start; k <= end; k += 2) {
         if (l >= arr1Length) {
@@ -102,6 +99,8 @@ void StringArray::merge(int start, int middle, int end) {
             m += 2;
         }
     }
+    delete[] arr1;
+    delete[] arr2;
 }
 
 // Use merge sort on _arr either for even or odd indices.
