@@ -10,7 +10,8 @@
 
 using namespace std;
 
-void trimQuotes(string& s);
+void trimQuotes(string&);
+bool caseInsensitiveStrcmp(const string&, const string&);
 
 // Read in CSV data from a file with 6 digit codes and variable length company names.
 ManufacturerData::ManufacturerData(ifstream& inFile) : data(2), aliases(4) {
@@ -29,12 +30,13 @@ ManufacturerData::ManufacturerData(ifstream& inFile) : data(2), aliases(4) {
 // and stores them in aliases as ["company_name","# aliases","alias1","alias2",...]
 void ManufacturerData::findAliases() {
     data.sortEvensOrOdds(false); // sort by company name
+    cout << endl << "sorted" << endl;
     cout << data << endl;
     int matches = 1;
     // Walk through the data array looking for matching company names.
     if (data.getSize() > 2) {
         for (int i = 3; i < data.getSize(); i += 2) {
-           if (*data[i] == *data[i-2]) matches++;
+           if (caseInsensitiveStrcmp(*data[i], *data[i-2])) matches++;
            else {
                // If the previous ones were matches, record this company's aliases.
                if (matches > 1 || (i == data.getSize() - 1 && matches > 1)) {
@@ -51,4 +53,5 @@ void ManufacturerData::findAliases() {
         }
         aliases.resizeArray(false);
     }
+    cout << endl << "aliases" << endl << aliases << endl;
 }

@@ -7,6 +7,8 @@
 
 using namespace std;
 
+string strToUpper(string);
+
 StringArray::StringArray(int n) {
     _arrSize = n;
     _arr = new string*[_arrSize];
@@ -60,13 +62,14 @@ void StringArray::mergeSort(int start, int end) {
 
 // This merges two sorted subarrays. helper for mergeSortEvensOrOdds.
 void StringArray::merge(int start, int middle, int end) {
-    // Copy the subarrays so we can overwrite the original.
+    // Copy the subarrays into new ones so we can overwrite the original.
     int arr1Length = middle - start + 2;
     int arr2Length = end - middle;
     string** arr1 = new string*[arr1Length];
     string** arr2 = new string*[arr2Length];
     // Depending on the parity, we should either be copying each element's successor or predecessor.
     int parity = (start % 2 == 0 ? 1 : -1);
+    // We should also copy elements from odd indices into odd indices, and similarly for even.
     int startParity = (start % 2 == 0 ? 0 : 1);
     for (int i = start; i <= middle; i += 2) {
         arr1[i - start + startParity] = _arr[i];
@@ -89,7 +92,7 @@ void StringArray::merge(int start, int middle, int end) {
             _arr[k] = arr1[l];
             _arr[k + parity] = arr1[l + parity];
             l += 2;
-        } else if (*arr1[l] <= *arr2[m]) {
+        } else if (strToUpper(*arr1[l]) <= strToUpper(*arr2[m])) {
             _arr[k] = arr1[l];
             _arr[k + parity] = arr1[l + parity];
             l += 2;
