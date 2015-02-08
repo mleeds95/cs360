@@ -157,6 +157,7 @@ void ManufacturerData::findAliases() {
             delete[] allUPCs[i]->mInfo->listOfItems;
             delete allUPCs[i]->mInfo;
             allUPCs[i]->mInfo = lastEntry;
+            // Store this index in _aliasedIndices so we don't try to free the memory later.
             if (_numAliasedIndices + 1 > _sizeAliasedIndices)
                 resizeAliasedIndices();
             _aliasedIndices[_numAliasedIndices++] = i;
@@ -196,7 +197,7 @@ bool ManufacturerData::addItem(int inUPC, int inCode, string inDescription) {
     // Ideally you'd search in lg n time, but n is small in this case,
     // so it may not be worth it to sort first.
     for (int j = 0; j < match->numItems; j++) {
-        if (match->listOfItems[j]->code == inCode) {
+        if (match->listOfItems[j]->description == inDescription) {
             match->listOfItems[j]->quantity++;
             return true;
         }
@@ -217,7 +218,28 @@ bool ManufacturerData::addItem(int inUPC, int inCode, string inDescription) {
     newItem->code = inCode;
     newItem->description =  inDescription;
     match->listOfItems[match->numItems++] = newItem;
-    cout << "added an item" << endl;
-    cout << match->listOfItems[match->numItems - 1]->code << endl;
     return true;
+}
+
+// This prints of report of all items sold under their respective manufacturers,
+// which are alhabetically sorted. The format is:
+// <MANUFACTURER NAME>
+// Qty <X> - <description>
+// ...
+//
+void ManufacturerData::printReport() {
+    sortByUPCorName(false);
+    for (int i = 0; i < _numUPCs; i++) {
+        // Don't print out duplicate entries.
+        for (int j = 0; j < _numAliasedIndices; j++)
+            if (_aliasedIndices[j] == i)
+                continue;
+        ManufacturerInfo* thisM = allUPCs[i]->mInfo;
+        cout << thisM->name << endl;
+        for (int k = 0; k < thisM->numItems; k++) {
+            cout << "Qty " << thisM->listOfItems[k]->quantity << " - ";
+            cout << thisM->listOfItems[k]->description << endl;
+        }
+        cout << endl << endl;
+    }
 }

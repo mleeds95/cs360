@@ -1,11 +1,10 @@
 // File: main.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-02
+// Last Edit: 2015-02-08
 // Purpose: For CS 360, Project 2: reading and processing sales data in CSV format.
 
 #include <iostream>
-#include <fstream>
-#include "ManufacturerData.h"
+#include "SalesData.h"
 
 using namespace std;
 
@@ -22,18 +21,20 @@ int main() {
     // Initialize manufacturers data object.
     ManufacturerData mData = ManufacturerData(manufacturersFile);
     manufacturersFile.close();
+    // Find instances where companies have multiple codes, and redirect those pointers.
     mData.findAliases();
+    // Sort by UPC so we can do binary searches when we're adding items.
     mData.sortByUPCorName(true);
-    // ManufacturerInfo* result = mData.findByUPC(200, 0, mData.getNumUPCs() - 1);
-    // cout << result->name << endl;
-    /* Read in Sales data from the disk.
+    // Read in Sales data from the disk.
     ifstream salesFile(SALES_FILENAME);
     if (!salesFile.is_open()) {
         cerr << "Error: " << SALES_FILENAME << " file inaccessible or non-existent!" << endl;
         return 1;
     }
-    // initialize sales data object
+    // Initialize sales data object (which will add items to the manufacturers as it goes).
+    SalesData sData = SalesData(salesFile, mData);
     salesFile.close();
-    // Output ish.*/
+    // Output a nicely formatted sales report.
+    mData.printReport();
     return 0;
 }

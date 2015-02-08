@@ -1,10 +1,9 @@
 // File: ManufacturerData.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-06
+// Last Edit: 2015-02-08
 
 #include <string>
 #include <fstream>
-#include "StringArray.h"
 
 using namespace std;
 
@@ -38,6 +37,7 @@ class ManufacturerData {
         bool addItem(int UPC, int fullCode, string description);
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
+        void printReport();
 
     private:
         void mergeSort(bool byUPC, int start, int end);
