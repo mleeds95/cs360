@@ -23,10 +23,9 @@ int main() {
     ManufacturerData mData = ManufacturerData(manufacturersFile);
     manufacturersFile.close();
     mData.findAliases();
-    /*cout << "======SORTING ON EVENS" << endl;
-    mData.aliases.sortEvensOrOdds(true);
-    cout << "======FINDING ENTRY FOR UPC 000200" << endl;
-    mData.aliases.searchEvensOrOdds(string("000200"), 0, mData.aliases.getSize() - 2);*/
+    mData.sortByUPCorName(true);
+    // ManufacturerInfo* result = mData.findByUPC(200, 0, mData.getNumUPCs() - 1);
+    // cout << result->name << endl;
     /* Read in Sales data from the disk.
     ifstream salesFile(SALES_FILENAME);
     if (!salesFile.is_open()) {

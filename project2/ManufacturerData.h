@@ -19,6 +19,7 @@ struct ManufacturerInfo {
     string nameALLCAPS;
     Item** listOfItems;
     int numItems;
+    int sizeListOfItems;
 };
 
 struct UPCInfo {
@@ -33,6 +34,8 @@ class ManufacturerData {
         UPCInfo** allUPCs;
         void sortByUPCorName(bool byUPC) { mergeSort(byUPC, 0, _numUPCs - 1); }
         int getNumUPCs() { return _numUPCs; }
+        ManufacturerInfo* findByUPC(int UPC, int start, int end);
+        bool addItem(int UPC, int fullCode, string description);
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
 

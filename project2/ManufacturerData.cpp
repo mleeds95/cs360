@@ -1,6 +1,6 @@
 // File: ManufacturerData.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-04
+// Last Edit: 2015-02-08
 // Purpose: Define a class for holding data for manufacturer names and UPC codes.
 
 #include <iostream>
@@ -31,6 +31,8 @@ ManufacturerData::ManufacturerData(ifstream& inFile) :
         thisMInfo->name = companyName;
         thisMInfo->nameALLCAPS = strToUpper(companyName);
         thisMInfo->numItems = 0;
+        thisMInfo->sizeListOfItems = 1;
+        thisMInfo->listOfItems = new Item*[1];
         thisUPC->mInfo = thisMInfo;
         if (_numUPCs + 1 > _sizeAllUPCs)
             resizeAllUPCs();
@@ -39,6 +41,8 @@ ManufacturerData::ManufacturerData(ifstream& inFile) :
 }
 
 ManufacturerData::~ManufacturerData() {
+    // allUPCs must be sorted by UPC so the aliasedIndices match.
+    sortByUPCorName(false);
     for (int i = 0; i < _numUPCs; i++) {
         UPCInfo* thisUPCInfo = allUPCs[i];
         // if it's not a duplicate pointer (an alias), delete it.
@@ -49,8 +53,7 @@ ManufacturerData::~ManufacturerData() {
         if (!dupe) {
             for (int k = 0; k < thisUPCInfo->mInfo->numItems; k++)
                 delete thisUPCInfo->mInfo->listOfItems[k];
-            if (thisUPCInfo->mInfo->numItems > 0)
-                delete[] thisUPCInfo->mInfo->listOfItems;
+            delete[] thisUPCInfo->mInfo->listOfItems;
             delete thisUPCInfo->mInfo;
         }
         delete thisUPCInfo;
@@ -151,6 +154,7 @@ void ManufacturerData::findAliases() {
         ManufacturerInfo* lastEntry = allUPCs[i-1]->mInfo;
         if (allUPCs[i]->mInfo->nameALLCAPS == lastEntry->nameALLCAPS) {
             // Have each matching entry point to the first match.
+            delete[] allUPCs[i]->mInfo->listOfItems;
             delete allUPCs[i]->mInfo;
             allUPCs[i]->mInfo = lastEntry;
             if (_numAliasedIndices + 1 > _sizeAliasedIndices)
@@ -158,4 +162,62 @@ void ManufacturerData::findAliases() {
             _aliasedIndices[_numAliasedIndices++] = i;
         }
     }
+}
+
+// This assumes allUPCs is sorted by UPC and does a binary search to find a 
+// given manufacturer by UPC, returning a pointer to its ManufacturerInfo object.
+ManufacturerInfo* ManufacturerData::findByUPC(int searchUPC, int start, int end) {
+    ManufacturerInfo* rightResult = NULL;
+    ManufacturerInfo* leftResult = NULL;
+    int middle = (start + end) / 2;
+    if (allUPCs[middle]->UPC == searchUPC)
+        return allUPCs[middle]->mInfo;
+    if (start < end) {
+        if (allUPCs[middle]->UPC < searchUPC)
+            rightResult = findByUPC(searchUPC, middle + 1, end);
+        else
+            leftResult = findByUPC(searchUPC, start, middle - 1);
+    }
+    if (rightResult != NULL) 
+        return rightResult;
+    if (leftResult != NULL) 
+        return leftResult;
+    return NULL;
+}
+
+// This takes the first 6 digits of the UPC as inUPC, all 12 digits as inCode,
+// and the item description as inDescription. It adds the item in the appropriate 
+// manufacturer's object or increments the quantity for pre-existing items.
+bool ManufacturerData::addItem(int inUPC, int inCode, string inDescription) {
+    ManufacturerInfo* match = findByUPC(inUPC, 0, _numUPCs - 1); 
+    if (match == NULL) 
+        return false;
+    // If the item is already there, increment its quantity.
+    // Ideally you'd search in lg n time, but n is small in this case,
+    // so it may not be worth it to sort first.
+    for (int j = 0; j < match->numItems; j++) {
+        if (match->listOfItems[j]->code == inCode) {
+            match->listOfItems[j]->quantity++;
+            return true;
+        }
+    }
+    // Resize listOfItems if necessary
+    if (match->numItems + 1 > match->sizeListOfItems) {
+        int newSize = match->sizeListOfItems * 2;
+        Item** newListOfItems = new Item*[newSize];
+        for (int i = 0; i < match->numItems; i++)
+            newListOfItems[i] = match->listOfItems[i];
+        delete[] match->listOfItems;
+        match->listOfItems = newListOfItems;
+        match->sizeListOfItems = newSize;
+    }
+    // Add a new item.
+    Item* newItem = new Item;
+    newItem->quantity = 1;
+    newItem->code = inCode;
+    newItem->description =  inDescription;
+    match->listOfItems[match->numItems++] = newItem;
+    cout << "added an item" << endl;
+    cout << match->listOfItems[match->numItems - 1]->code << endl;
+    return true;
 }
