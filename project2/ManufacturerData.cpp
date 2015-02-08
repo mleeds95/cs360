@@ -194,14 +194,15 @@ bool ManufacturerData::addItem(int inUPC, int inCode, string inDescription) {
     if (match == NULL) 
         return false;
     // If the item is already there, increment its quantity.
-    // Ideally you'd search in lg n time, but n is small in this case,
-    // so it may not be worth it to sort first.
+    // Since n is relatively small, this is faster than sorting it first.
+    // I verified this empirically.
     for (int j = 0; j < match->numItems; j++) {
         if (match->listOfItems[j]->description == inDescription) {
             match->listOfItems[j]->quantity++;
             return true;
         }
     }
+    // At this point we know this is an item we haven't seen before.
     // Resize listOfItems if necessary
     if (match->numItems + 1 > match->sizeListOfItems) {
         int newSize = match->sizeListOfItems * 2;
