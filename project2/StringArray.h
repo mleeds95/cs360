@@ -13,6 +13,7 @@ class StringArray {
         void append(string* s);
         void resizeArray(bool bigger);
         void sortEvensOrOdds(bool evens);
+        string searchEvensOrOdds(string, int start, int end);
         int getSize() { return _arrSize;}
         friend ostream& operator<<(ostream&, const StringArray&);
         string* operator[](int index);

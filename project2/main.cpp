@@ -22,9 +22,11 @@ int main() {
     // Initialize manufacturers data object.
     ManufacturerData mData = ManufacturerData(manufacturersFile);
     manufacturersFile.close();
-    cout << mData.data << endl;
     mData.findAliases();
-    //TODO check for duplicates
+    /*cout << "======SORTING ON EVENS" << endl;
+    mData.aliases.sortEvensOrOdds(true);
+    cout << "======FINDING ENTRY FOR UPC 000200" << endl;
+    mData.aliases.searchEvensOrOdds(string("000200"), 0, mData.aliases.getSize() - 2);*/
     /* Read in Sales data from the disk.
     ifstream salesFile(SALES_FILENAME);
     if (!salesFile.is_open()) {

@@ -8,6 +8,7 @@
 using namespace std;
 
 string strToUpper(string);
+bool caseInsensitiveStrcmp(const string&, const string&);
 
 StringArray::StringArray(int n) {
     _arrSize = n;
@@ -62,6 +63,7 @@ void StringArray::mergeSort(int start, int end) {
 
 // This merges two sorted subarrays. helper for mergeSortEvensOrOdds.
 void StringArray::merge(int start, int middle, int end) {
+    cout << "merge " << start << " middle " << middle << " end " << end << endl;
     // Copy the subarrays into new ones so we can overwrite the original.
     int arr1Length = middle - start + 2;
     int arr2Length = end - middle;
@@ -112,6 +114,31 @@ void StringArray::sortEvensOrOdds(bool evens) {
         mergeSort(0, _arrSize - 2);
     else
         mergeSort(1, _arrSize - 1);
+}
+
+// Assume the array is sorted, the indices given have the same 
+// parity and are within range, and the array size has been kept 
+// down to what's necessary. Do a binary search for something.
+// On success return its successor or predecessor, else the empty string.
+string StringArray::searchEvensOrOdds(string str, int start, int end) {
+    string strLeft = "";
+    string strRight = "";
+    int parity = (start % 2 == 0 ? 1 : -1);
+    int middle = (start + end) / 2; 
+    // The parity of middle should match that of start.
+    if ((middle % 2 == 1 && start % 2 == 0) || (middle % 2 == 0 && start % 2 == 1))
+        middle--;
+    if (caseInsensitiveStrcmp(*_arr[middle], str))
+        return *_arr[middle + parity];
+    if (start < end) {
+        if (*_arr[middle] < str)
+            strRight = searchEvensOrOdds(str, middle + 2, end);
+        else
+            strLeft = searchEvensOrOdds(str, start, middle - 2);
+    }
+    if (strRight.length() > 0) return strRight;
+    if (strLeft.length() > 0) return strLeft;
+    return "";
 }
 
 // Print the array to stdout, one record per line.

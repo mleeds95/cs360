@@ -6,52 +6,156 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstdlib>
 #include "ManufacturerData.h"
 
 using namespace std;
 
 void trimQuotes(string&);
 bool caseInsensitiveStrcmp(const string&, const string&);
+string strToUpper(string);
 
 // Read in CSV data from a file with 6 digit codes and variable length company names.
-ManufacturerData::ManufacturerData(ifstream& inFile) : data(2), aliases(4) {
+// Stores appropriate information in a UPCInfo struct containing a ManufacturerInfo struct.
+ManufacturerData::ManufacturerData(ifstream& inFile) : 
+    _numUPCs(0), _sizeAllUPCs(1) {
+    allUPCs = new UPCInfo*[1];
     string line = "";
-    // Read in all the records from the file into data.
+    // Read in all the records from the file into allUPCs.
     while (getline(inFile, line)) {
-        data.append(new string(line.substr(0,6))); // UPC code
+        UPCInfo* thisUPC = new UPCInfo;
+        thisUPC->UPC = atoi(line.substr(0,6).c_str());
         string companyName = line.substr(7);
         trimQuotes(companyName);
-        data.append(new string(companyName));
+        ManufacturerInfo* thisMInfo = new ManufacturerInfo;
+        thisMInfo->name = companyName;
+        thisMInfo->nameALLCAPS = strToUpper(companyName);
+        thisMInfo->numItems = 0;
+        thisUPC->mInfo = thisMInfo;
+        if (_numUPCs + 1 > _sizeAllUPCs)
+            resizeAllUPCs();
+        allUPCs[_numUPCs++] = thisUPC;
     }
-    data.resizeArray(false);
 }
 
-// This finds instances in _arr where the same company has multiple UPC codes,
-// and stores them in aliases as ["company_name","# aliases","alias1","alias2",...]
-void ManufacturerData::findAliases() {
-    data.sortEvensOrOdds(false); // sort by company name
-    cout << endl << "sorted" << endl;
-    cout << data << endl;
-    int matches = 1;
-    // Walk through the data array looking for matching company names.
-    if (data.getSize() > 2) {
-        for (int i = 3; i < data.getSize(); i += 2) {
-           if (caseInsensitiveStrcmp(*data[i], *data[i-2])) matches++;
-           else {
-               // If the previous ones were matches, record this company's aliases.
-               if (matches > 1 || (i == data.getSize() - 1 && matches > 1)) {
-                   aliases.append(new string(*data[i-2]));
-                   ostringstream oss;
-                   oss << matches;
-                   aliases.append(new string(oss.str()));
-                   for (int j = 1; j <= matches; j++) 
-                       aliases.append(new string(*data[i-1-(j*2)]));
-               }
-               // Reset the counter (everything is a match to itself).
-               matches = 1;
-           } 
+ManufacturerData::~ManufacturerData() {
+    for (int i = 0; i < _numUPCs; i++) {
+        UPCInfo* thisUPCInfo = allUPCs[i];
+        // if it's not a duplicate pointer (an alias), delete it.
+        bool dupe = false;
+        for (int j = 0; j < _numAliasedIndices; j++)
+            if (_aliasedIndices[j] == i) 
+                dupe = true;
+        if (!dupe) {
+            for (int k = 0; k < thisUPCInfo->mInfo->numItems; k++)
+                delete thisUPCInfo->mInfo->listOfItems[k];
+            if (thisUPCInfo->mInfo->numItems > 0)
+                delete[] thisUPCInfo->mInfo->listOfItems;
+            delete thisUPCInfo->mInfo;
         }
-        aliases.resizeArray(false);
+        delete thisUPCInfo;
     }
-    cout << endl << "aliases" << endl << aliases << endl;
+    if (_sizeAliasedIndices > 0) 
+        delete[] _aliasedIndices;
+    delete[] allUPCs;
+}
+
+ostream& operator<<(ostream& os, const ManufacturerData& m) {
+    for (int i = 0; i < m._numUPCs; i++) {
+        os << m.allUPCs[i]->UPC << endl;
+        string thisName = m.allUPCs[i]->mInfo->name; 
+        os << thisName << endl;
+    }
+    return os;
+}
+
+void ManufacturerData::resizeAllUPCs() {
+   int newSize = _sizeAllUPCs * 2; 
+   UPCInfo** newUPCs = new UPCInfo*[newSize];
+   for (int i = 0; i < _numUPCs; i++) {
+       newUPCs[i] = allUPCs[i];
+   }
+   delete[] allUPCs;
+   allUPCs = newUPCs;
+   _sizeAllUPCs = newSize;
+}
+
+void ManufacturerData::resizeAliasedIndices() {
+    int newSize = _sizeAliasedIndices * 2;
+    int* newAliasedIndices = new int[newSize];
+    for (int i = 0; i < _numAliasedIndices; i++) {
+        newAliasedIndices[i] = _aliasedIndices[i];
+    }
+    delete[] _aliasedIndices;
+    _aliasedIndices = newAliasedIndices;
+    _sizeAliasedIndices = newSize;
+}
+
+void ManufacturerData::mergeSort(bool byUPC, int start, int end) {
+    if (start < end) {
+        int middle = (start + end) / 2;
+        mergeSort(byUPC, start, middle);
+        mergeSort(byUPC, middle + 1, end);
+        merge(byUPC, start, middle, end);
+    }
+}
+
+// This merges two sorted subarrays of allUPCs (either on UPC or ALL CAPS name).
+void ManufacturerData::merge(bool byUPC, int start, int middle, int end) {
+    int arr1Length = middle - start + 1;
+    int arr2Length = end - middle;
+    UPCInfo* arr1[arr1Length];
+    UPCInfo* arr2[arr2Length];
+    int i;
+    for (i = start; i <= middle; i++) {
+        arr1[i - start] = allUPCs[i];
+    }
+    int j;
+    for (j = middle + 1; j <= end; j++) {
+        arr2[j - middle - 1] = allUPCs[j];
+    }
+    int l = 0; // arr1 counter
+    int m = 0; // arr2 counter
+    // Now merge them by copying an element from one or the other each iteration.
+    int k; // arr counter
+    for (k = start; k <= end; k++) {
+        if (l >= arr1Length) {
+            allUPCs[k] = arr2[m];
+            m++;
+        } else if (m >= arr2Length) {
+            allUPCs[k] = arr1[l];
+            l++;
+        } else if (( byUPC && (arr1[l]->UPC                <= arr2[m]->UPC               )) || 
+                   (!byUPC && (arr1[l]->mInfo->nameALLCAPS <= arr2[m]->mInfo->nameALLCAPS))) {
+            allUPCs[k] = arr1[l];
+            l++;
+        } else {
+            allUPCs[k] = arr2[m];
+            m++;
+        }
+    }
+}
+
+// This finds instances in allUPCs where the same company has multiple UPC codes,
+// and points them all to the same UPCInfo struct. It assumes that this is run
+// before listOfItems has been initialized (it makes no attempt to free that memory).
+void ManufacturerData::findAliases() {
+    _numAliasedIndices = 0;
+    _sizeAliasedIndices = 1;
+    _aliasedIndices = new int[1];
+    // First sort them by name.
+    sortByUPCorName(false);
+    // Walk through the array looking for matching company names.
+    if (_numUPCs < 2) return;
+    for (int i = 1; i < _numUPCs; i++) {
+        ManufacturerInfo* lastEntry = allUPCs[i-1]->mInfo;
+        if (allUPCs[i]->mInfo->nameALLCAPS == lastEntry->nameALLCAPS) {
+            // Have each matching entry point to the first match.
+            delete allUPCs[i]->mInfo;
+            allUPCs[i]->mInfo = lastEntry;
+            if (_numAliasedIndices + 1 > _sizeAliasedIndices)
+                resizeAliasedIndices();
+            _aliasedIndices[_numAliasedIndices++] = i;
+        }
+    }
 }
