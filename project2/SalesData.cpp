@@ -37,6 +37,6 @@ SalesData::SalesData(ifstream& inFile, ManufacturerData& mData) {
         else
             numFailure++;
     }
-    cout << "numSuccess = " << numSuccess << endl;
-    cout << "numFailure = " << numFailure << endl;
-} 
+    //cout << "numSuccess = " << numSuccess << endl;
+    //cout << "numFailure = " << numFailure << endl;
+}

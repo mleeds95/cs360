@@ -41,7 +41,7 @@ ManufacturerData::ManufacturerData(ifstream& inFile) :
 }
 
 ManufacturerData::~ManufacturerData() {
-    // allUPCs must be sorted by UPC so the aliasedIndices match.
+    // allUPCs must be sorted by Name so the aliasedIndices match.
     sortByUPCorName(false);
     for (int i = 0; i < _numUPCs; i++) {
         UPCInfo* thisUPCInfo = allUPCs[i];
@@ -232,9 +232,14 @@ void ManufacturerData::printReport() {
     sortByUPCorName(false);
     for (int i = 0; i < _numUPCs; i++) {
         // Don't print out duplicate entries.
-        for (int j = 0; j < _numAliasedIndices; j++)
-            if (_aliasedIndices[j] == i)
-                continue;
+        bool dupe = false;
+        for (int j = 0; j < _numAliasedIndices; j++) {
+            if (_aliasedIndices[j] == i) {
+                dupe = true;
+                break;
+            }
+        }
+        if (dupe) continue;
         ManufacturerInfo* thisM = allUPCs[i]->mInfo;
         cout << thisM->name << endl;
         for (int k = 0; k < thisM->numItems; k++) {
