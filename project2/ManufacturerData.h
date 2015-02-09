@@ -24,6 +24,7 @@ struct ManufacturerInfo {
 struct UPCInfo {
     int UPC;
     ManufacturerInfo* mInfo;
+    bool alias;
 };
 
 class ManufacturerData {
@@ -43,10 +44,6 @@ class ManufacturerData {
         void mergeSort(bool byUPC, int start, int end);
         void merge(bool byUPC, int start, int middle, int end);
         void resizeAllUPCs();
-        void resizeAliasedIndices();
         int _numUPCs;
         int _sizeAllUPCs;
-        int* _aliasedIndices;
-        int _numAliasedIndices;
-        int _sizeAliasedIndices;
 };

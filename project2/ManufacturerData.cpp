@@ -34,6 +34,7 @@ ManufacturerData::ManufacturerData(ifstream& inFile) :
         thisMInfo->sizeListOfItems = 1;
         thisMInfo->listOfItems = new Item*[1];
         thisUPC->mInfo = thisMInfo;
+        thisUPC->alias = false;
         if (_numUPCs + 1 > _sizeAllUPCs)
             resizeAllUPCs();
         allUPCs[_numUPCs++] = thisUPC;
@@ -41,16 +42,10 @@ ManufacturerData::ManufacturerData(ifstream& inFile) :
 }
 
 ManufacturerData::~ManufacturerData() {
-    // allUPCs must be sorted by Name so the aliasedIndices match.
-    sortByUPCorName(false);
     for (int i = 0; i < _numUPCs; i++) {
         UPCInfo* thisUPCInfo = allUPCs[i];
         // if it's not a duplicate pointer (an alias), delete it.
-        bool dupe = false;
-        for (int j = 0; j < _numAliasedIndices; j++)
-            if (_aliasedIndices[j] == i) 
-                dupe = true;
-        if (!dupe) {
+        if (!thisUPCInfo->alias) {
             for (int k = 0; k < thisUPCInfo->mInfo->numItems; k++)
                 delete thisUPCInfo->mInfo->listOfItems[k];
             delete[] thisUPCInfo->mInfo->listOfItems;
@@ -58,13 +53,12 @@ ManufacturerData::~ManufacturerData() {
         }
         delete thisUPCInfo;
     }
-    if (_sizeAliasedIndices > 0) 
-        delete[] _aliasedIndices;
     delete[] allUPCs;
 }
 
 ostream& operator<<(ostream& os, const ManufacturerData& m) {
     for (int i = 0; i < m._numUPCs; i++) {
+        if (m.allUPCs[i]->alias) continue;
         os << m.allUPCs[i]->UPC << endl;
         string thisName = m.allUPCs[i]->mInfo->name; 
         os << thisName << endl;
@@ -81,17 +75,6 @@ void ManufacturerData::resizeAllUPCs() {
    delete[] allUPCs;
    allUPCs = newUPCs;
    _sizeAllUPCs = newSize;
-}
-
-void ManufacturerData::resizeAliasedIndices() {
-    int newSize = _sizeAliasedIndices * 2;
-    int* newAliasedIndices = new int[newSize];
-    for (int i = 0; i < _numAliasedIndices; i++) {
-        newAliasedIndices[i] = _aliasedIndices[i];
-    }
-    delete[] _aliasedIndices;
-    _aliasedIndices = newAliasedIndices;
-    _sizeAliasedIndices = newSize;
 }
 
 void ManufacturerData::mergeSort(bool byUPC, int start, int end) {
@@ -143,9 +126,6 @@ void ManufacturerData::merge(bool byUPC, int start, int middle, int end) {
 // and points them all to the same UPCInfo struct. It assumes that this is run
 // before listOfItems has been initialized (it makes no attempt to free that memory).
 void ManufacturerData::findAliases() {
-    _numAliasedIndices = 0;
-    _sizeAliasedIndices = 1;
-    _aliasedIndices = new int[1];
     // First sort them by name.
     sortByUPCorName(false);
     // Walk through the array looking for matching company names.
@@ -157,10 +137,7 @@ void ManufacturerData::findAliases() {
             delete[] allUPCs[i]->mInfo->listOfItems;
             delete allUPCs[i]->mInfo;
             allUPCs[i]->mInfo = lastEntry;
-            // Store this index in _aliasedIndices so we don't try to free the memory later.
-            if (_numAliasedIndices + 1 > _sizeAliasedIndices)
-                resizeAliasedIndices();
-            _aliasedIndices[_numAliasedIndices++] = i;
+            allUPCs[i]->alias = true;
         }
     }
 }
@@ -232,14 +209,7 @@ void ManufacturerData::printReport() {
     sortByUPCorName(false);
     for (int i = 0; i < _numUPCs; i++) {
         // Don't print out duplicate entries.
-        bool dupe = false;
-        for (int j = 0; j < _numAliasedIndices; j++) {
-            if (_aliasedIndices[j] == i) {
-                dupe = true;
-                break;
-            }
-        }
-        if (dupe) continue;
+        if (allUPCs[i]->alias) continue;
         ManufacturerInfo* thisM = allUPCs[i]->mInfo;
         cout << thisM->name << endl;
         for (int k = 0; k < thisM->numItems; k++) {
