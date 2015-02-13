@@ -23,7 +23,7 @@ SalesData::SalesData(ifstream& inFile, ManufacturerData& mData) {
         }
         // Assume if the line is long enough, it's formatted roughly correctly.
         int UPC = atoi(line.substr(0,6).c_str());
-        int fullCode = atoi(line.substr(0,12).c_str());
+        long fullCode = atol(line.substr(0,12).c_str());
         string restOfLine = line.substr(13);
         size_t nextComma = restOfLine.find(',');
         if (nextComma == string::npos) {

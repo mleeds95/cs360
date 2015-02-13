@@ -10,7 +10,7 @@ using namespace std;
 struct Item {
     string description;
     int quantity;
-    int code;
+    long code;
 };
 
 struct ManufacturerInfo {
@@ -35,7 +35,7 @@ class ManufacturerData {
         void sortByUPCorName(bool byUPC) { mergeSort(byUPC, 0, _numUPCs - 1); }
         int getNumUPCs() { return _numUPCs; }
         ManufacturerInfo* findByUPC(int UPC, int start, int end);
-        bool addItem(int UPC, int fullCode, string description);
+        bool addItem(int UPC, long fullCode, string description);
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
         void printReport();

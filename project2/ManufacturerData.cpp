@@ -60,8 +60,14 @@ ostream& operator<<(ostream& os, const ManufacturerData& m) {
     for (int i = 0; i < m._numUPCs; i++) {
         if (m.allUPCs[i]->alias) continue;
         os << m.allUPCs[i]->UPC << endl;
-        string thisName = m.allUPCs[i]->mInfo->name; 
-        os << thisName << endl;
+        os << m.allUPCs[i]->mInfo->name << endl;
+        os << "numItems: " << m.allUPCs[i]->mInfo->numItems << endl;
+        for (int j = 0; j < m.allUPCs[i]->mInfo->numItems; j++) {
+            os << m.allUPCs[i]->mInfo->listOfItems[j]->quantity << "x: "
+               << m.allUPCs[i]->mInfo->listOfItems[j]->description << endl
+               << m.allUPCs[i]->mInfo->listOfItems[j]->code << endl;
+        }
+        os << endl;
     }
     return os;
 }
@@ -166,7 +172,7 @@ ManufacturerInfo* ManufacturerData::findByUPC(int searchUPC, int start, int end)
 // This takes the first 6 digits of the UPC as inUPC, all 12 digits as inCode,
 // and the item description as inDescription. It adds the item in the appropriate 
 // manufacturer's object or increments the quantity for pre-existing items.
-bool ManufacturerData::addItem(int inUPC, int inCode, string inDescription) {
+bool ManufacturerData::addItem(int inUPC, long inCode, string inDescription) {
     ManufacturerInfo* match = findByUPC(inUPC, 0, _numUPCs - 1); 
     if (match == NULL) 
         return false;
