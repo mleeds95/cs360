@@ -40,13 +40,15 @@ class ManufacturerData {
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
         void printReport();
+        void toHashTable();
+        void freeUPCarray();
         bool redBlackTree;
 
     private:
         void mergeSort(bool byUPC, int start, int end);
         void merge(bool byUPC, int start, int middle, int end);
         void resizeAllUPCs();
-        int _numUPCs;
-        int _sizeAllUPCs;
+        unsigned long _numUPCs;
+        unsigned long _sizeAllUPCs;
         StaticHashTable _allMfrCodes;
 };

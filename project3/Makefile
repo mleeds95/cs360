@@ -13,7 +13,7 @@ project3: $(OBJ)
 main.o: main.cpp ManufacturerData.cpp SalesData.cpp stringFunctions.cpp
 	$(CC) $(CFLAGS) -c main.cpp
 
-ManufacturerData.o: ManufacturerData.cpp stringFunctions.cpp
+ManufacturerData.o: ManufacturerData.cpp stringFunctions.cpp StaticHashTable.cpp
 	$(CC) $(CFLAGS) -c ManufacturerData.cpp
 
 SalesData.o: SalesData.cpp ManufacturerData.cpp stringFunctions.cpp

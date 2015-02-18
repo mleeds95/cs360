@@ -1,6 +1,6 @@
 // File: ManufacturerData.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-08
+// Last Edit: 2015-02-17
 // Purpose: Define a class for holding data for manufacturer names and UPC codes.
 
 #include <iostream>
@@ -19,10 +19,7 @@ string strToUpper(string);
 // Stores appropriate information in a UPCInfo struct containing a ManufacturerInfo struct.
 // If useRBT is true, use a Red Black Tree, otherwise use a hash table.
 ManufacturerData::ManufacturerData(ifstream& inFile, bool useRBT) : 
-    redBlackTree(useRBT), _numUPCs(0), _sizeAllUPCs(1), _allMfrCodes(inFile) {
-    // Assuming most lines have a 6 digit code and at least a short company name,
-    // calculate the maximum number of lines in the file (in constant time).
-    /*
+    redBlackTree(useRBT), _numUPCs(0), _sizeAllUPCs(1) {
     allUPCs = new UPCInfo*[1];
     string line = "";
     // Read in all the records from the file into allUPCs.
@@ -43,11 +40,17 @@ ManufacturerData::ManufacturerData(ifstream& inFile, bool useRBT) :
             resizeAllUPCs();
         allUPCs[_numUPCs++] = thisUPC;
     }
-    */
 }
 
-ManufacturerData::~ManufacturerData() {
-    for (int i = 0; i < _numUPCs; i++) {
+ManufacturerData::~ManufacturerData() {}
+
+void ManufacturerData::toHashTable() {
+    _allMfrCodes = StaticHashTable(_numUPCs);
+    _allMfrCodes.addRecords(allUPCs, _sizeAllUPCs);
+}
+
+void ManufacturerData::freeUPCarray() {
+    for (unsigned long i = 0; i < _numUPCs; i++) {
         UPCInfo* thisUPCInfo = allUPCs[i];
         // if it's not a duplicate pointer (an alias), delete it.
         if (!thisUPCInfo->alias) {
@@ -78,9 +81,9 @@ ostream& operator<<(ostream& os, const ManufacturerData& m) {
 }
 
 void ManufacturerData::resizeAllUPCs() {
-   int newSize = _sizeAllUPCs * 2; 
+   unsigned long newSize = _sizeAllUPCs * 2; 
    UPCInfo** newUPCs = new UPCInfo*[newSize];
-   for (int i = 0; i < _numUPCs; i++) {
+   for (unsigned long i = 0; i < _numUPCs; i++) {
        newUPCs[i] = allUPCs[i];
    }
    delete[] allUPCs;
@@ -141,7 +144,7 @@ void ManufacturerData::findAliases() {
     sortByUPCorName(false);
     // Walk through the array looking for matching company names.
     if (_numUPCs < 2) return;
-    for (int i = 1; i < _numUPCs; i++) {
+    for (unsigned long i = 1; i < _numUPCs; i++) {
         ManufacturerInfo* lastEntry = allUPCs[i-1]->mInfo;
         if (allUPCs[i]->mInfo->nameALLCAPS == lastEntry->nameALLCAPS) {
             // Have each matching entry point to the first match.
