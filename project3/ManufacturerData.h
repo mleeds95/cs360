@@ -1,9 +1,10 @@
 // File: ManufacturerData.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-08
+// Last Edit: 2015-02-17
 
 #include <string>
 #include <fstream>
+#include "StaticHashTable.h"
 
 using namespace std;
 
@@ -29,7 +30,7 @@ struct UPCInfo {
 
 class ManufacturerData {
     public:
-        ManufacturerData(ifstream& inFile);
+        ManufacturerData(ifstream& inFile, bool useRBT);
         ~ManufacturerData();
         UPCInfo** allUPCs;
         void sortByUPCorName(bool byUPC) { mergeSort(byUPC, 0, _numUPCs - 1); }
@@ -39,6 +40,7 @@ class ManufacturerData {
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
         void printReport();
+        bool redBlackTree;
 
     private:
         void mergeSort(bool byUPC, int start, int end);
@@ -46,4 +48,5 @@ class ManufacturerData {
         void resizeAllUPCs();
         int _numUPCs;
         int _sizeAllUPCs;
+        StaticHashTable _allMfrCodes;
 };

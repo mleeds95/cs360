@@ -17,8 +17,12 @@ string strToUpper(string);
 
 // Read in CSV data from a file with 6 digit codes and variable length company names.
 // Stores appropriate information in a UPCInfo struct containing a ManufacturerInfo struct.
-ManufacturerData::ManufacturerData(ifstream& inFile) : 
-    _numUPCs(0), _sizeAllUPCs(1) {
+// If useRBT is true, use a Red Black Tree, otherwise use a hash table.
+ManufacturerData::ManufacturerData(ifstream& inFile, bool useRBT) : 
+    redBlackTree(useRBT), _numUPCs(0), _sizeAllUPCs(1), _allMfrCodes(inFile) {
+    // Assuming most lines have a 6 digit code and at least a short company name,
+    // calculate the maximum number of lines in the file (in constant time).
+    /*
     allUPCs = new UPCInfo*[1];
     string line = "";
     // Read in all the records from the file into allUPCs.
@@ -39,6 +43,7 @@ ManufacturerData::ManufacturerData(ifstream& inFile) :
             resizeAllUPCs();
         allUPCs[_numUPCs++] = thisUPC;
     }
+    */
 }
 
 ManufacturerData::~ManufacturerData() {
