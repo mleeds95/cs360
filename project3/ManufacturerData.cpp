@@ -46,7 +46,7 @@ ManufacturerData::~ManufacturerData() {}
 
 void ManufacturerData::toHashTable() {
     _allMfrCodes = StaticHashTable(_numUPCs);
-    _allMfrCodes.addRecords(allUPCs, _sizeAllUPCs);
+    _allMfrCodes.addRecords(allUPCs);
 }
 
 void ManufacturerData::freeUPCarray() {
@@ -65,7 +65,7 @@ void ManufacturerData::freeUPCarray() {
 }
 
 ostream& operator<<(ostream& os, const ManufacturerData& m) {
-    for (int i = 0; i < m._numUPCs; i++) {
+    for (unsigned long i = 0; i < m._numUPCs; i++) {
         if (m.allUPCs[i]->alias) continue;
         os << m.allUPCs[i]->UPC << endl;
         os << m.allUPCs[i]->mInfo->name << endl;
@@ -221,7 +221,7 @@ bool ManufacturerData::addItem(int inUPC, long inCode, string inDescription) {
 //
 void ManufacturerData::printReport() {
     sortByUPCorName(false);
-    for (int i = 0; i < _numUPCs; i++) {
+    for (unsigned long i = 0; i < _numUPCs; i++) {
         // Don't print out duplicate entries.
         if (allUPCs[i]->alias) continue;
         ManufacturerInfo* thisM = allUPCs[i]->mInfo;

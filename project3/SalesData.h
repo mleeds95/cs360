@@ -2,6 +2,7 @@
 // Author: Matthew Leeds
 // Last Edit: 2015-02-08
 
+#pragma once
 #include <fstream>
 #include "ManufacturerData.h"
 

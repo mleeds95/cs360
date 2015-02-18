@@ -6,19 +6,18 @@
 #include <cstdlib>
 #include <cmath>
 #include <ctime>
-#include "StaticHashTable.h"
-#include "MfrLinkedList.h"
 #include "ManufacturerData.h"
+#include "StaticHashTable.h"
 
 using namespace std;
 
-unsigned long hashKey(unsigned long key) {
+unsigned long StaticHashTable::hashKey(unsigned long key) {
     return (((_a * key + _b) % _prime) % _tableSize);
 }
 
 // This constructs a perfect hash table (worst case constant access) by doing two passes
 // over the data, one for each level of hashing.
-StaticHashTable::StaticHashTable(unsigned int numRecords) 
+StaticHashTable::StaticHashTable(unsigned long numRecords) :
     _numRecords(numRecords) {
     // This is a list of primes that are roughly between powers of two, 
     // thanks to http://planetmath.org/goodhashtableprimes
@@ -41,19 +40,49 @@ StaticHashTable::StaticHashTable(unsigned int numRecords)
     // Choose a and b, two constants between 1 and _prime - 1
     // Assume RAND_MAX is at least 2^31, so RAND_MAX^2 is near numeric_limits<unsigned long>::max()
     srand(time(NULL));
-    _a = pow(rand(), 2) % _prime;
+    _a = ((unsigned long)pow(rand(), 2)) % _prime;
     srand(time(NULL) / 2);
-    _b = pow(rand(), 2) % _prime;
+    _b = ((unsigned long)pow(rand(), 2)) % _prime;
 }
 
 StaticHashTable::~StaticHashTable() {}
 
-// This takes an array with all the manufacturers' info and converts it
-// to a hash table. Aliases have already been corrected at this point.
-void StaticHashTable::addRecords(UPCInfo** allUPCs, unsigned long length) {
-   for (unsigned long i = 0; i < length; i++) {
-        unsigned long h = hashKey(allUPCs[i]->UPC);
-        if //TODO
-   }
+void StaticHashTable::printHashInfo() {
+    cout << "_numRecords " << _numRecords << endl;
+    cout << "_prime " << _prime << endl;
+    cout << "_tableSize " << _tableSize << endl;
+    cout << "_a " << _a << endl;
+    cout << "_b " << _b << endl;  
 }
 
+// This takes an array with all the manufacturers' info and converts it
+// to a hash table. Aliases have already been corrected at this point.
+void StaticHashTable::addRecords(UPCInfo** allUPCs) {
+    allRecords = new Entry*[_tableSize](); 
+    // First run all the records through the primary hash function.
+    for (unsigned long i = 0; i < _numRecords; i++) {
+        unsigned long h = hashKey(allUPCs[i]->UPC);
+        if (allRecords[h] == NULL) {
+            Entry* thisEntry = new Entry();
+            thisEntry->collisions = new MfrLinkedList();
+            thisEntry->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias);
+            allRecords[h] = thisEntry;
+        } else {
+            allRecords[h]->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias);
+        }
+    }
+    // Now find secondary hash functions for each entry,
+    // such that there are no collisions on this level.
+    //TODO
+    /*for (unsigned long i = 0; i < _tableSize; i++) {
+        if (allRecords[i] != NULL) {
+            cout << i << allRecords[i]->collisions->head->mInfo->name << endl;
+            Node* thisNode = allRecords[i]->collisions->head;
+            while (thisNode->next != NULL) {
+                cout << "  " << thisNode->next->mInfo->name << endl;
+                thisNode = thisNode->next;
+            }
+        }
+    }
+    printHashInfo();*/
+}

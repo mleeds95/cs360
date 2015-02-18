@@ -2,6 +2,7 @@
 // Author: Matthew Leeds
 // Last Edit: 2015-02-17
 
+#pragma once
 #include <string>
 #include <fstream>
 #include "StaticHashTable.h"

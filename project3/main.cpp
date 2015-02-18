@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     // Initialize manufacturers data object.
-    ManufacturerData mData = ManufacturerData(manufacturersFile);
+    ManufacturerData mData = ManufacturerData(manufacturersFile, useRBT);
     manufacturersFile.close();
     // Find instances where companies have multiple codes, and redirect those pointers.
     mData.findAliases();

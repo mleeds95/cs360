@@ -1,11 +1,11 @@
 # File: Makefile
 # Author: Matthew Leeds
-# Last Edit: 2015-02-17
+# Last Edit: 2015-02-18
 
 CC=g++
-CFLAGS=-Wall
+CFLAGS=-Wall -g
 OBJ=main.o ManufacturerData.o SalesData.o stringFunctions.o \
-	StaticHashTable.o
+	StaticHashTable.o MfrLinkedList.o
 
 project3: $(OBJ)
 	$(CC) $(CFLAGS) -o project3 $(OBJ)
@@ -22,8 +22,11 @@ SalesData.o: SalesData.cpp ManufacturerData.cpp stringFunctions.cpp
 stringFunctions.o: stringFunctions.cpp
 	$(CC) $(CFLAGS) -c stringFunctions.cpp
 
-StaticHashTable.o: StaticHashTable.cpp
+StaticHashTable.o: StaticHashTable.cpp ManufacturerData.cpp MfrLinkedList.cpp
 	$(CC) $(CFLAGS) -c StaticHashTable.cpp
+
+MfrLinkedList.o: MfrLinkedList.cpp ManufacturerData.cpp
+	$(CC) $(CFLAGS) -c MfrLinkedList.cpp
 
 .PHONY: clean
 
