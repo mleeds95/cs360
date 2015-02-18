@@ -1,4 +1,4 @@
-// File: StaticHashTable.cpp
+// File: StaticHashTable.h
 // Author: Matthew Leeds
 // Last Edit: 2015-02-17
 
@@ -19,14 +19,16 @@ class StaticHashTable {
     struct MfrRecord {
         ManufacturerInfo* mInfo;
         bool alias;
+        MfrRecord(ManufacturerInfo* inMInfo, bool inAlias) :
+            mInfo(inMInfo), alias(inAlias) {}
     };
 
     // Since a specific hash function has to be chosen for each record,
     // we need to store the constants for that, and the actual mfr data.
     struct SecondLevelHashTable {
-        int _tableSize;
-        int _a;
-        int _b;
+        unsigned int _tableSize;
+        unsigned int _a;
+        unsigned int _b;
         MfrRecord** MfrTable;
     };
 

@@ -6,6 +6,7 @@
 
 MfrLinkedList::MfrLinkedList() {
     head = NULL;
+    numItems = 0;
 }
 
 MfrLinkedList::~MfrLinkedList() {
@@ -18,10 +19,12 @@ MfrLinkedList::~MfrLinkedList() {
     }
 }
 
-void MfrLinkedList::addValue(ManufacturerInfo* mInfo, bool al) {
+void MfrLinkedList::addValue(ManufacturerInfo* inMInfo, bool inAlias, int inUPC) {
     Node* n = new Node();
-    n->mInfo = mInfo;
-    n->alias = al;
+    n->mInfo = inMInfo;
+    n->alias = inAlias;
+    n->UPC = inUPC;
     n->next = head;
     head = n;
+    numItems++;
 }

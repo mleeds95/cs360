@@ -26,10 +26,11 @@ StaticHashTable::StaticHashTable(unsigned long numRecords) :
                                        196613, 393241, 786433, 1572869, 3145739, 6291469, 12582917, 25165843,
                                        50331653, 100663319, 201326611, 402653189, 805306457, 1610612741};
     if (numRecords > specialPrimes[25]) {
-        _tableSize = numRecords;
+        _tableSize = numRecords * 1.5;
     } else {
         for (int i = 0; i < 26; i++) {
-            if (specialPrimes[i] > numRecords) {
+            // Find a suitable size that keeps the load factor <= 0.75.
+            if (specialPrimes[i] > (unsigned long)(numRecords * 1.5)) {
                 _tableSize = specialPrimes[i];
                 break;
             }
@@ -65,15 +66,47 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
         if (allRecords[h] == NULL) {
             Entry* thisEntry = new Entry();
             thisEntry->collisions = new MfrLinkedList();
-            thisEntry->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias);
+            thisEntry->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias, allUPCs[i]->UPC);
             allRecords[h] = thisEntry;
         } else {
-            allRecords[h]->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias);
+            allRecords[h]->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias, allUPCs[i]->UPC);
         }
     }
     // Now find secondary hash functions for each entry,
     // such that there are no collisions on this level.
-    //TODO
+    for (unsigned long i = 0; i < _tableSize; i++) {
+        if (allRecords[i] != NULL) {
+            SecondLevelHashTable* thisTable = new SecondLevelHashTable();
+            thisTable->_tableSize = (unsigned int)pow(allRecords[i]->collisions->numItems, 2);
+            thisTable->MfrTable = new MfrRecord*[thisTable->_tableSize]();
+            bool collisionFree = false;
+            while (!collisionFree) {
+                for (unsigned int j = 0; j < thisTable->_tableSize; j++) {
+                    if (thisTable->MfrTable[j] != NULL) {
+                        delete thisTable->MfrTable[j];
+                        thisTable->MfrTable[j] = NULL;
+                    }
+                }
+                collisionFree = true;
+                srand(time(NULL));
+                thisTable->_a = rand() % _prime;
+                srand(time(NULL) / 2);
+                thisTable->_b = rand() % _prime;
+                Node* thisNode = allRecords[i]->collisions->head;
+                //TODO if numItems = 0, a = 0, b = 0
+                for (unsigned int k = 0; k < allRecords[i]->collisions->numItems; k++) {
+                    unsigned int h = (((thisTable->_a * thisNode->UPC + thisTable->_b) % _prime) % thisTable->_tableSize);
+                    if (thisTable->MfrTable[h] != NULL) {
+                        collisionFree = false;
+                        break;
+                    } else {
+                        thisTable->MfrTable[h] = new MfrRecord(thisNode->mInfo, thisNode->alias);
+                    }
+                    thisNode = thisNode->next;
+                } 
+            }
+        }
+    }
     /*for (unsigned long i = 0; i < _tableSize; i++) {
         if (allRecords[i] != NULL) {
             cout << i << allRecords[i]->collisions->head->mInfo->name << endl;

@@ -10,6 +10,7 @@ struct ManufacturerInfo;
 struct Node {
     ManufacturerInfo* mInfo;
     bool alias;
+    int UPC;
     Node* next;
 };
 
@@ -17,6 +18,7 @@ class MfrLinkedList {
     public:
         MfrLinkedList();
         ~MfrLinkedList();
-        void addValue(ManufacturerInfo* mI, bool al);
+        void addValue(ManufacturerInfo* mI, bool al, int UPC);
         Node* head;
+        unsigned int numItems;
 };
