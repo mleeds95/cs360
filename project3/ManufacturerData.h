@@ -1,6 +1,6 @@
 // File: ManufacturerData.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-17
+// Last Edit: 2015-02-19
 
 #pragma once
 #include <string>
@@ -51,5 +51,5 @@ class ManufacturerData {
         void resizeAllUPCs();
         unsigned long _numUPCs;
         unsigned long _sizeAllUPCs;
-        StaticHashTable _allMfrCodes;
+        StaticHashTable* _allMfrCodes;
 };

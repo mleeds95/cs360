@@ -1,6 +1,6 @@
 // File: ManufacturerData.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-17
+// Last Edit: 2015-02-19
 // Purpose: Define a class for holding data for manufacturer names and UPC codes.
 
 #include <iostream>
@@ -43,13 +43,21 @@ ManufacturerData::ManufacturerData(ifstream& inFile, bool useRBT) :
     }
 }
 
-ManufacturerData::~ManufacturerData() {}
-
-void ManufacturerData::toHashTable() {
-    _allMfrCodes = StaticHashTable(_numUPCs);
-    _allMfrCodes.addRecords(allUPCs);
+ManufacturerData::~ManufacturerData() {
+    for (unsigned long i = 0; i < _numUPCs; i++)
+        delete allUPCs[i];
+    delete[] allUPCs;
+    delete _allMfrCodes;
 }
 
+// Move all the data to a perfect hash table.
+void ManufacturerData::toHashTable() {
+    _allMfrCodes = new StaticHashTable(_numUPCs);
+    _allMfrCodes->addRecords(allUPCs);
+}
+
+// If you use this class with the array w/o a HashTable or RedBlackTree,
+// you can use this function to free the memory properly.
 void ManufacturerData::freeUPCarray() {
     for (unsigned long i = 0; i < _numUPCs; i++) {
         UPCInfo* thisUPCInfo = allUPCs[i];

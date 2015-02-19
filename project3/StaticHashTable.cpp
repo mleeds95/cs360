@@ -1,6 +1,6 @@
 // File: StaticHashTable.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-17
+// Last Edit: 2015-02-19
 
 #include <iostream>
 #include <cstdlib>
@@ -16,8 +16,7 @@ unsigned long StaticHashTable::hashKey(unsigned long key) {
     return (((_a * key + _b) % _prime) % _tableSize);
 }
 
-// This constructs a perfect hash table (worst case constant access) by doing two passes
-// over the data, one for each level of hashing.
+// This sets up the paramaters for our hash table (prime, a, b, tableSize, numRecords).
 StaticHashTable::StaticHashTable(unsigned long numRecords) :
     _numRecords(numRecords) {
     // This is a list of primes that are roughly between powers of two, 
@@ -44,9 +43,44 @@ StaticHashTable::StaticHashTable(unsigned long numRecords) :
     srand(time(NULL));
     _a = ((unsigned long)pow(rand(), 2)) % _prime;
     _b = ((unsigned long)pow(rand(), 2)) % _prime;
+    _allRecords = new Entry*[_tableSize];
+    for (unsigned long i = 0; i < _tableSize; i++)
+        _allRecords[i] = NULL;
 }
 
-StaticHashTable::~StaticHashTable() {}
+StaticHashTable::~StaticHashTable() {
+    for (unsigned long i = 0; i < _tableSize; i++) {
+        if (_allRecords[i] != NULL) {
+            // free noCollisions memory
+            MfrRecord** thisMfrTable = _allRecords[i]->noCollisions->MfrTable;
+            for (unsigned int j = 0; j < _allRecords[i]->noCollisions->_tableSize; j++) {
+                if (thisMfrTable[j] != NULL) { 
+                    if (!thisMfrTable[j]->alias) {
+                        for (unsigned int k = 0; k < thisMfrTable[j]->mInfo->numItems; k++)
+                            delete thisMfrTable[j]->mInfo->listOfItems[k];
+                        delete[] thisMfrTable[j]->mInfo->listOfItems;
+                        delete thisMfrTable[j]->mInfo;
+                    }
+                    delete thisMfrTable[j];
+                }
+            }
+            delete[] thisMfrTable;
+            delete _allRecords[i]->noCollisions;
+            // free collisions memory
+            MfrLinkedList* thisMfrList = _allRecords[i]->collisions;
+            Node* n = thisMfrList->head;
+            while (n != NULL) {
+                thisMfrList->head = thisMfrList->head->next;
+                delete n;
+                n = thisMfrList->head;
+            }
+            delete _allRecords[i]->collisions;
+            // free the Entry itself
+            delete _allRecords[i];
+        }
+    }
+    delete[] _allRecords;
+}
 
 void StaticHashTable::printHashInfo() {
     cout << "_numRecords " << _numRecords << endl;
@@ -59,24 +93,23 @@ void StaticHashTable::printHashInfo() {
 // This takes an array with all the manufacturers' info and converts it
 // to a hash table. Aliases have already been corrected at this point.
 void StaticHashTable::addRecords(UPCInfo** allUPCs) {
-    allRecords = new Entry*[_tableSize](); 
     // First run all the records through the primary hash function.
     for (unsigned long i = 0; i < _numRecords; i++) {
         unsigned long h = hashKey(allUPCs[i]->UPC);
-        if (allRecords[h] == NULL) {
+        if (_allRecords[h] == NULL) {
             Entry* thisEntry = new Entry();
             thisEntry->collisions = new MfrLinkedList();
             thisEntry->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias, allUPCs[i]->UPC);
-            allRecords[h] = thisEntry;
+            _allRecords[h] = thisEntry;
         } else {
-            allRecords[h]->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias, allUPCs[i]->UPC);
+            _allRecords[h]->collisions->addValue(allUPCs[i]->mInfo, allUPCs[i]->alias, allUPCs[i]->UPC);
         }
     }
     // Now find secondary hash functions for each entry that don't collisions.
     // Move all the data from the MfrLinkedList* to the SecondLevelHashTable* in the process.
     for (unsigned long i = 0; i < _tableSize; i++) {
-        if (allRecords[i] != NULL) {
-            MfrLinkedList* theCollisions = allRecords[i]->collisions;
+        if (_allRecords[i] != NULL) {
+            MfrLinkedList* theCollisions = _allRecords[i]->collisions;
             SecondLevelHashTable* thisTable = new SecondLevelHashTable();
             if (theCollisions->numItems == 1) {
                 thisTable->_tableSize = 1;
@@ -113,7 +146,8 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
                     } 
                 }
             }
-            allRecords[i]->noCollisions = thisTable;
+            // Assign our new SecondLevelHashTable* to the current slot.
+            _allRecords[i]->noCollisions = thisTable;
         }
     }
     //printHashInfo();
@@ -121,8 +155,8 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
 
 MfrRecord* StaticHashTable::getRecord(unsigned int key) {
     unsigned long h1 = hashKey(key);
-    if (allRecords[h1] != NULL) {
-        SecondLevelHashTable* secondaryTable = allRecords[h1]->noCollisions;
+    if (_allRecords[h1] != NULL) {
+        SecondLevelHashTable* secondaryTable = _allRecords[h1]->noCollisions;
         unsigned int h2 = (((secondaryTable->_a * key + secondaryTable->_b) % _prime) % secondaryTable->_tableSize);
         if (secondaryTable->MfrTable[h2] != NULL)
             return secondaryTable->MfrTable[h2];

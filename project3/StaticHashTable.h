@@ -1,6 +1,6 @@
 // File: StaticHashTable.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-17
+// Last Edit: 2015-02-19
 
 #pragma once
 #include <fstream>
@@ -54,6 +54,6 @@ class StaticHashTable {
         unsigned long _a; // hashing function coefficient
         unsigned long _b; // hashing function coefficient
         unsigned long hashKey(unsigned long key); // primary hash function
-        Entry** allRecords;
+        Entry** _allRecords;
 
 };
