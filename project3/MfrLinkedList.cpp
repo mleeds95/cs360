@@ -19,7 +19,7 @@ MfrLinkedList::~MfrLinkedList() {
     }
 }
 
-void MfrLinkedList::addValue(ManufacturerInfo* inMInfo, bool inAlias, int inUPC) {
+void MfrLinkedList::addValue(ManufacturerInfo* inMInfo, bool inAlias, unsigned int inUPC) {
     Node* n = new Node();
     n->mInfo = inMInfo;
     n->alias = inAlias;

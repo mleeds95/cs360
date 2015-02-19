@@ -13,15 +13,15 @@ struct ManufacturerInfo;
 struct UPCInfo;
 class MfrLinkedList;
 
-class StaticHashTable {
+// We don't need to store the key since you can deterministically find this.
+struct MfrRecord {
+    ManufacturerInfo* mInfo;
+    bool alias;
+    MfrRecord(ManufacturerInfo* inMInfo, bool inAlias) :
+        mInfo(inMInfo), alias(inAlias) {}
+};
 
-    // We don't need to store the key since you can deterministically find this.
-    struct MfrRecord {
-        ManufacturerInfo* mInfo;
-        bool alias;
-        MfrRecord(ManufacturerInfo* inMInfo, bool inAlias) :
-            mInfo(inMInfo), alias(inAlias) {}
-    };
+class StaticHashTable {
 
     // Since a specific hash function has to be chosen for each record,
     // we need to store the constants for that, and the actual mfr data.
@@ -45,6 +45,7 @@ class StaticHashTable {
         ~StaticHashTable();
         void addRecords(UPCInfo** allUPCs);
         void printHashInfo();
+        MfrRecord* getRecord(unsigned int key);
 
     private:
         unsigned long _numRecords;

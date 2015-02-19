@@ -11,6 +11,7 @@
 
 using namespace std;
 
+struct MfrRecord;
 void trimQuotes(string&);
 bool caseInsensitiveStrcmp(const string&, const string&);
 string strToUpper(string);
