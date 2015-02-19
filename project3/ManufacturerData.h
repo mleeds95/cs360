@@ -11,20 +11,20 @@ using namespace std;
 
 struct Item {
     string description;
-    int quantity;
-    long code;
+    unsigned int quantity;
+    unsigned long code;
 };
 
 struct ManufacturerInfo {
     string name;
     string nameALLCAPS;
     Item** listOfItems;
-    int numItems;
-    int sizeListOfItems;
+    unsigned int numItems;
+    unsigned int sizeListOfItems;
 };
 
 struct UPCInfo {
-    int UPC;
+    unsigned int UPC;
     ManufacturerInfo* mInfo;
     bool alias;
 };
@@ -36,8 +36,8 @@ class ManufacturerData {
         UPCInfo** allUPCs;
         void sortByUPCorName(bool byUPC) { mergeSort(byUPC, 0, _numUPCs - 1); }
         int getNumUPCs() { return _numUPCs; }
-        ManufacturerInfo* findByUPC(int UPC, int start, int end);
-        bool addItem(int UPC, long fullCode, string description);
+        ManufacturerInfo* findByUPC(unsigned int UPC, unsigned long start, unsigned long end);
+        bool addItem(unsigned int UPC, unsigned long fullCode, string description);
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
         void printReport();
@@ -46,8 +46,8 @@ class ManufacturerData {
         bool redBlackTree;
 
     private:
-        void mergeSort(bool byUPC, int start, int end);
-        void merge(bool byUPC, int start, int middle, int end);
+        void mergeSort(bool byUPC, unsigned long start, unsigned long end);
+        void merge(bool byUPC, unsigned long start, unsigned long middle, unsigned long end);
         void resizeAllUPCs();
         unsigned long _numUPCs;
         unsigned long _sizeAllUPCs;

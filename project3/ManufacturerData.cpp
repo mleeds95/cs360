@@ -55,7 +55,7 @@ void ManufacturerData::freeUPCarray() {
         UPCInfo* thisUPCInfo = allUPCs[i];
         // if it's not a duplicate pointer (an alias), delete it.
         if (!thisUPCInfo->alias) {
-            for (int k = 0; k < thisUPCInfo->mInfo->numItems; k++)
+            for (unsigned int k = 0; k < thisUPCInfo->mInfo->numItems; k++)
                 delete thisUPCInfo->mInfo->listOfItems[k];
             delete[] thisUPCInfo->mInfo->listOfItems;
             delete thisUPCInfo->mInfo;
@@ -71,7 +71,7 @@ ostream& operator<<(ostream& os, const ManufacturerData& m) {
         os << m.allUPCs[i]->UPC << endl;
         os << m.allUPCs[i]->mInfo->name << endl;
         os << "numItems: " << m.allUPCs[i]->mInfo->numItems << endl;
-        for (int j = 0; j < m.allUPCs[i]->mInfo->numItems; j++) {
+        for (unsigned int j = 0; j < m.allUPCs[i]->mInfo->numItems; j++) {
             os << m.allUPCs[i]->mInfo->listOfItems[j]->quantity << "x: "
                << m.allUPCs[i]->mInfo->listOfItems[j]->description << endl
                << m.allUPCs[i]->mInfo->listOfItems[j]->code << endl;
@@ -92,9 +92,9 @@ void ManufacturerData::resizeAllUPCs() {
    _sizeAllUPCs = newSize;
 }
 
-void ManufacturerData::mergeSort(bool byUPC, int start, int end) {
+void ManufacturerData::mergeSort(bool byUPC, unsigned long start, unsigned long end) {
     if (start < end) {
-        int middle = (start + end) / 2;
+        unsigned long middle = (start + end) / 2;
         mergeSort(byUPC, start, middle);
         mergeSort(byUPC, middle + 1, end);
         merge(byUPC, start, middle, end);
@@ -102,23 +102,23 @@ void ManufacturerData::mergeSort(bool byUPC, int start, int end) {
 }
 
 // This merges two sorted subarrays of allUPCs (either on UPC or ALL CAPS name).
-void ManufacturerData::merge(bool byUPC, int start, int middle, int end) {
-    int arr1Length = middle - start + 1;
-    int arr2Length = end - middle;
+void ManufacturerData::merge(bool byUPC, unsigned long start, unsigned long middle, unsigned long end) {
+    unsigned long arr1Length = middle - start + 1;
+    unsigned long arr2Length = end - middle;
     UPCInfo* arr1[arr1Length];
     UPCInfo* arr2[arr2Length];
-    int i;
+    unsigned long i;
     for (i = start; i <= middle; i++) {
         arr1[i - start] = allUPCs[i];
     }
-    int j;
+    unsigned long j;
     for (j = middle + 1; j <= end; j++) {
         arr2[j - middle - 1] = allUPCs[j];
     }
-    int l = 0; // arr1 counter
-    int m = 0; // arr2 counter
+    unsigned long l = 0; // arr1 counter
+    unsigned long m = 0; // arr2 counter
     // Now merge them by copying an element from one or the other each iteration.
-    int k; // arr counter
+    unsigned long k; // arr counter
     for (k = start; k <= end; k++) {
         if (l >= arr1Length) {
             allUPCs[k] = arr2[m];
@@ -159,10 +159,10 @@ void ManufacturerData::findAliases() {
 
 // This assumes allUPCs is sorted by UPC and does a binary search to find a 
 // given manufacturer by UPC, returning a pointer to its ManufacturerInfo object.
-ManufacturerInfo* ManufacturerData::findByUPC(int searchUPC, int start, int end) {
+ManufacturerInfo* ManufacturerData::findByUPC(unsigned int searchUPC, unsigned long start, unsigned long end) {
     ManufacturerInfo* rightResult = NULL;
     ManufacturerInfo* leftResult = NULL;
-    int middle = (start + end) / 2;
+    unsigned long middle = (start + end) / 2;
     if (allUPCs[middle]->UPC == searchUPC)
         return allUPCs[middle]->mInfo;
     if (start < end) {
@@ -181,14 +181,14 @@ ManufacturerInfo* ManufacturerData::findByUPC(int searchUPC, int start, int end)
 // This takes the first 6 digits of the UPC as inUPC, all 12 digits as inCode,
 // and the item description as inDescription. It adds the item in the appropriate 
 // manufacturer's object or increments the quantity for pre-existing items.
-bool ManufacturerData::addItem(int inUPC, long inCode, string inDescription) {
+bool ManufacturerData::addItem(unsigned int inUPC, unsigned long inCode, string inDescription) {
     ManufacturerInfo* match = findByUPC(inUPC, 0, _numUPCs - 1); 
     if (match == NULL) 
         return false;
     // If the item is already there, increment its quantity.
     // Since n is relatively small, this is faster than sorting it first.
     // I verified this empirically.
-    for (int j = 0; j < match->numItems; j++) {
+    for (unsigned int j = 0; j < match->numItems; j++) {
         if (match->listOfItems[j]->description == inDescription) {
             match->listOfItems[j]->quantity++;
             return true;
@@ -197,9 +197,9 @@ bool ManufacturerData::addItem(int inUPC, long inCode, string inDescription) {
     // At this point we know this is an item we haven't seen before.
     // Resize listOfItems if necessary
     if (match->numItems + 1 > match->sizeListOfItems) {
-        int newSize = match->sizeListOfItems * 2;
+        unsigned int newSize = match->sizeListOfItems * 2;
         Item** newListOfItems = new Item*[newSize];
-        for (int i = 0; i < match->numItems; i++)
+        for (unsigned int i = 0; i < match->numItems; i++)
             newListOfItems[i] = match->listOfItems[i];
         delete[] match->listOfItems;
         match->listOfItems = newListOfItems;
@@ -227,7 +227,7 @@ void ManufacturerData::printReport() {
         if (allUPCs[i]->alias) continue;
         ManufacturerInfo* thisM = allUPCs[i]->mInfo;
         cout << thisM->name << endl;
-        for (int k = 0; k < thisM->numItems; k++) {
+        for (unsigned int k = 0; k < thisM->numItems; k++) {
             cout << "Qty " << thisM->listOfItems[k]->quantity << " - ";
             cout << thisM->listOfItems[k]->description << endl;
         }
