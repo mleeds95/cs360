@@ -18,6 +18,12 @@ void RedBlackTree::_freeNodesRecursively(Node* n) {
     if (n != NULL) {
         _freeNodesRecursively(n->left);
         _freeNodesRecursively(n->right);
+        if (!n->alias) {
+            for (unsigned int i = 0; i < n->mInfo->numItems; i++)
+                delete n->mInfo->listOfItems[i];
+            delete[] n->mInfo->listOfItems;
+            delete n->mInfo;
+        }
         delete n;
     }
 }
@@ -66,8 +72,8 @@ void RedBlackTree::insertNode(unsigned int inMfrCode, ManufacturerInfo* inMInfo,
         if (current->red) 
             _enforceRedBlackProperties(newNode);
     }
-    printTree(_root);
-    cout << endl;
+    //printTree(_root);
+    //cout << endl;
 }
 
 // recursively enforces Red-Black Tree properties that may have 
@@ -170,4 +176,18 @@ void RedBlackTree::_rightRotate(Node* n) {
         n->parent->left = leftSubtree;
     leftSubtree->right = n;
     n->parent = leftSubtree;
+}
+
+// This goes down the tree searching for a node with a matching mfrCode.
+ManufacturerInfo* RedBlackTree::getMInfo(unsigned int inMfrCode) {
+    Node* current = _root;
+    while (current != NULL) {
+        if (current->mfrCode == inMfrCode)
+            return current->mInfo;
+        if (inMfrCode < current->mfrCode)
+            current = current->left;
+        else
+            current = current->right;
+    }
+    return NULL; // no such node was found
 }

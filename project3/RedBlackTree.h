@@ -32,6 +32,7 @@ class RedBlackTree {
         void insertNode(unsigned int mfrCode, ManufacturerInfo* mInfo, bool alias);
         void growTree(UPCInfo** allUPCs, unsigned long numUPCs);
         void printTree(Node*);
+        ManufacturerInfo* getMInfo(unsigned int mfrCode);
     
     private:
         Node* _root;
