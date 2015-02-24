@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include "StaticHashTable.h"
+#include "RedBlackTree.h"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ class ManufacturerData {
         void findAliases();
         void printReport();
         void toHashTable();
+        void toRedBlackTree();
         void freeUPCarray();
         bool redBlackTree;
 
@@ -51,5 +53,6 @@ class ManufacturerData {
         void resizeAllUPCs();
         unsigned long _numUPCs;
         unsigned long _sizeAllUPCs;
-        StaticHashTable* _allMfrCodes;
+        StaticHashTable* _allMfrCodesHT;
+        RedBlackTree* _allMfrCodesRBT;
 };

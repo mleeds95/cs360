@@ -1,17 +1,17 @@
 // File: MfrLinkedList.h
 // Author: Matthew Leeds
-// Last Edit: 2015-02-17
+// Last Edit: 2015-02-24
 
 #pragma once
 #include "ManufacturerData.h"
 
 struct ManufacturerInfo;
 
-struct Node {
+struct LLNode {
     ManufacturerInfo* mInfo;
     bool alias;
     unsigned int UPC;
-    Node* next;
+    LLNode* next;
 };
 
 class MfrLinkedList {
@@ -19,6 +19,6 @@ class MfrLinkedList {
         MfrLinkedList();
         ~MfrLinkedList();
         void addValue(ManufacturerInfo* mI, bool al, unsigned int UPC);
-        Node* head;
+        LLNode* head;
         unsigned int numItems;
 };

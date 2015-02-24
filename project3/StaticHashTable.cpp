@@ -68,7 +68,7 @@ StaticHashTable::~StaticHashTable() {
             delete _allRecords[i]->noCollisions;
             // free collisions memory
             MfrLinkedList* thisMfrList = _allRecords[i]->collisions;
-            Node* n = thisMfrList->head;
+            LLNode* n = thisMfrList->head;
             while (n != NULL) {
                 thisMfrList->head = thisMfrList->head->next;
                 delete n;
@@ -133,7 +133,7 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
                     collisionFree = true; // unless proven otherwise
                     thisTable->_a = rand() % _prime;
                     thisTable->_b = rand() % _prime;
-                    Node* thisNode = theCollisions->head;
+                    LLNode* thisNode = theCollisions->head;
                     for (unsigned int k = 0; k < theCollisions->numItems; k++) {
                         unsigned int h = (((thisTable->_a * thisNode->UPC + thisTable->_b) % _prime) % thisTable->_tableSize);
                         if (thisTable->MfrTable[h] != NULL) {

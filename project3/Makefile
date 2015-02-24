@@ -1,19 +1,21 @@
 # File: Makefile
 # Author: Matthew Leeds
-# Last Edit: 2015-02-18
+# Last Edit: 2015-02-23
 
 CC=g++
 CFLAGS=-Wall -g
 OBJ=main.o ManufacturerData.o SalesData.o stringFunctions.o \
-	StaticHashTable.o MfrLinkedList.o
+	StaticHashTable.o MfrLinkedList.o RedBlackTree.o
 
 project3: $(OBJ)
 	$(CC) $(CFLAGS) -o project3 $(OBJ)
 
-main.o: main.cpp ManufacturerData.cpp SalesData.cpp stringFunctions.cpp
+main.o: main.cpp ManufacturerData.cpp SalesData.cpp stringFunctions.cpp \
+	    StaticHashTable.cpp RedBlackTree.cpp
 	$(CC) $(CFLAGS) -c main.cpp
 
-ManufacturerData.o: ManufacturerData.cpp stringFunctions.cpp StaticHashTable.cpp
+ManufacturerData.o: ManufacturerData.cpp stringFunctions.cpp StaticHashTable.cpp \
+	                RedBlackTree.cpp
 	$(CC) $(CFLAGS) -c ManufacturerData.cpp
 
 SalesData.o: SalesData.cpp ManufacturerData.cpp stringFunctions.cpp
@@ -27,6 +29,9 @@ StaticHashTable.o: StaticHashTable.cpp ManufacturerData.cpp MfrLinkedList.cpp
 
 MfrLinkedList.o: MfrLinkedList.cpp ManufacturerData.cpp
 	$(CC) $(CFLAGS) -c MfrLinkedList.cpp
+
+RedBlackTree.o: RedBlackTree.cpp ManufacturerData.cpp
+	$(CC) $(CFLAGS) -c RedBlackTree.cpp
 
 .PHONY: clean
 

@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     mData.findAliases();
     // Convert to Hash Table or RBT
     if (useRBT)
-        cout << "TODO: RBT" << endl;
+        mData.toRedBlackTree();
     else
         mData.toHashTable();
     /*

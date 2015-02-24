@@ -20,7 +20,8 @@ string strToUpper(string);
 // Stores appropriate information in a UPCInfo struct containing a ManufacturerInfo struct.
 // If useRBT is true, use a Red Black Tree, otherwise use a hash table.
 ManufacturerData::ManufacturerData(ifstream& inFile, bool useRBT) : 
-    redBlackTree(useRBT), _numUPCs(0), _sizeAllUPCs(1) {
+    redBlackTree(useRBT), _numUPCs(0), _sizeAllUPCs(1),
+    _allMfrCodesHT(NULL), _allMfrCodesRBT(NULL) {
     allUPCs = new UPCInfo*[1];
     string line = "";
     // Read in all the records from the file into allUPCs.
@@ -47,16 +48,23 @@ ManufacturerData::~ManufacturerData() {
     for (unsigned long i = 0; i < _numUPCs; i++)
         delete allUPCs[i];
     delete[] allUPCs;
-    delete _allMfrCodes;
+    if (_allMfrCodesHT != NULL) delete _allMfrCodesHT;
+    if (_allMfrCodesRBT != NULL) delete _allMfrCodesRBT;
 }
 
 // Move all the data to a perfect hash table.
 void ManufacturerData::toHashTable() {
-    _allMfrCodes = new StaticHashTable(_numUPCs);
-    _allMfrCodes->addRecords(allUPCs);
+    _allMfrCodesHT = new StaticHashTable(_numUPCs);
+    _allMfrCodesHT->addRecords(allUPCs);
 }
 
-// If you use this class with the array w/o a HashTable or RedBlackTree,
+// Move all the data to a red-black tree.
+void ManufacturerData::toRedBlackTree() {
+    _allMfrCodesRBT = new RedBlackTree();
+    _allMfrCodesRBT->growTree(allUPCs, _numUPCs);
+}
+
+// If you use this class as an array w/o a HashTable or RedBlackTree,
 // you can use this function to free the memory properly.
 void ManufacturerData::freeUPCarray() {
     for (unsigned long i = 0; i < _numUPCs; i++) {

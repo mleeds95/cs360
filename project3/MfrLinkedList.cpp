@@ -1,6 +1,6 @@
 // File: MfrLinkedList.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-19
+// Last Edit: 2015-02-24
 
 #include "MfrLinkedList.h"
 
@@ -12,7 +12,7 @@ MfrLinkedList::MfrLinkedList() {
 MfrLinkedList::~MfrLinkedList() {}
 
 void MfrLinkedList::addValue(ManufacturerInfo* inMInfo, bool inAlias, unsigned int inUPC) {
-    Node* n = new Node();
+    LLNode* n = new LLNode();
     n->mInfo = inMInfo;
     n->alias = inAlias;
     n->UPC = inUPC;
