@@ -45,7 +45,7 @@ class StaticHashTable {
         ~StaticHashTable();
         void addRecords(UPCInfo** allUPCs);
         void printHashInfo();
-        MfrRecord* getRecord(unsigned int key);
+        ManufacturerInfo* getRecord(unsigned int key);
 
     private:
         unsigned long _numRecords;

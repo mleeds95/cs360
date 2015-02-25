@@ -153,13 +153,13 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
     //printHashInfo();
 }
 
-MfrRecord* StaticHashTable::getRecord(unsigned int key) {
+ManufacturerInfo* StaticHashTable::getRecord(unsigned int key) {
     unsigned long h1 = hashKey(key);
     if (_allRecords[h1] != NULL) {
         SecondLevelHashTable* secondaryTable = _allRecords[h1]->noCollisions;
         unsigned int h2 = (((secondaryTable->_a * key + secondaryTable->_b) % _prime) % secondaryTable->_tableSize);
         if (secondaryTable->MfrTable[h2] != NULL)
-            return secondaryTable->MfrTable[h2];
+            return secondaryTable->MfrTable[h2]->mInfo;
     }
     return NULL;
 }

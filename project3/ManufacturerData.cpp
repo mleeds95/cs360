@@ -1,7 +1,12 @@
 // File: ManufacturerData.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-02-19
+// Last Edit: 2015-02-24
 // Purpose: Define a class for holding data for manufacturer names and UPC codes.
+// Note: This class contains three data structures (array, hash table, tree),
+// so it can be confusing which methods apply to which, but this way we
+// can take advantage of the array's low initial cost and flexible sorting,
+// and get the worst-case O(1) searches once we move to a tree/table. Since
+// we're using pointers, the extra storage isn't much.
 
 #include <iostream>
 #include <string>
@@ -76,9 +81,7 @@ void ManufacturerData::freeUPCarray() {
             delete[] thisUPCInfo->mInfo->listOfItems;
             delete thisUPCInfo->mInfo;
         }
-        delete thisUPCInfo;
     }
-    delete[] allUPCs;
 }
 
 ostream& operator<<(ostream& os, const ManufacturerData& m) {
@@ -173,32 +176,19 @@ void ManufacturerData::findAliases() {
     }
 }
 
-// This assumes allUPCs is sorted by UPC and does a binary search to find a 
-// given manufacturer by UPC, returning a pointer to its ManufacturerInfo object.
-ManufacturerInfo* ManufacturerData::findByUPC(unsigned int searchUPC, unsigned long start, unsigned long end) {
-    ManufacturerInfo* rightResult = NULL;
-    ManufacturerInfo* leftResult = NULL;
-    unsigned long middle = (start + end) / 2;
-    if (allUPCs[middle]->UPC == searchUPC)
-        return allUPCs[middle]->mInfo;
-    if (start < end) {
-        if (allUPCs[middle]->UPC < searchUPC)
-            rightResult = findByUPC(searchUPC, middle + 1, end);
-        else
-            leftResult = findByUPC(searchUPC, start, middle - 1);
-    }
-    if (rightResult != NULL) 
-        return rightResult;
-    if (leftResult != NULL) 
-        return leftResult;
-    return NULL;
+// This finds the ManufacturerInfo* for a given UPC, either in the Hash Table or Red-Black Tree.
+ManufacturerInfo* ManufacturerData::findByUPC(unsigned int searchUPC) {
+    if (redBlackTree)
+        return _allMfrCodesRBT->getMInfo(searchUPC);
+    else
+        return _allMfrCodesHT->getRecord(searchUPC);
 }
 
 // This takes the first 6 digits of the UPC as inUPC, all 12 digits as inCode,
 // and the item description as inDescription. It adds the item in the appropriate 
 // manufacturer's object or increments the quantity for pre-existing items.
 bool ManufacturerData::addItem(unsigned int inUPC, unsigned long inCode, string inDescription) {
-    ManufacturerInfo* match = findByUPC(inUPC, 0, _numUPCs - 1); 
+    ManufacturerInfo* match = findByUPC(inUPC); 
     if (match == NULL) 
         return false;
     // If the item is already there, increment its quantity.
@@ -241,7 +231,9 @@ void ManufacturerData::printReport() {
     for (unsigned long i = 0; i < _numUPCs; i++) {
         // Don't print out duplicate entries.
         if (allUPCs[i]->alias) continue;
-        ManufacturerInfo* thisM = allUPCs[i]->mInfo;
+        // Of course it would be more efficient just to use the array,
+        // but this way we're using the appropriate data structure.
+        ManufacturerInfo* thisM = findByUPC(allUPCs[i]->UPC);
         cout << thisM->name << endl;
         for (unsigned int k = 0; k < thisM->numItems; k++) {
             cout << "Qty " << thisM->listOfItems[k]->quantity << " - ";

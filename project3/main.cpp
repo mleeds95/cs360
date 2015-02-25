@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
         mData.toRedBlackTree();
     else
         mData.toHashTable();
-    /*
     // Read in Sales data from the disk.
     ifstream salesFile(SALES_FILENAME);
     if (!salesFile.is_open()) {
@@ -44,8 +43,7 @@ int main(int argc, char* argv[]) {
     SalesData sData = SalesData(salesFile, mData);
     salesFile.close();
     // Output a nicely formatted sales report.
-    cout << mData << endl;
+    //cout << mData << endl;
     mData.printReport();
-    */
     return 0;
 }

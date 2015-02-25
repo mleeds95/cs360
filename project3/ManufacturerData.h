@@ -37,7 +37,7 @@ class ManufacturerData {
         UPCInfo** allUPCs;
         void sortByUPCorName(bool byUPC) { mergeSort(byUPC, 0, _numUPCs - 1); }
         int getNumUPCs() { return _numUPCs; }
-        ManufacturerInfo* findByUPC(unsigned int UPC, unsigned long start, unsigned long end);
+        ManufacturerInfo* findByUPC(unsigned int UPC);
         bool addItem(unsigned int UPC, unsigned long fullCode, string description);
         friend ostream& operator<<(ostream& os, const ManufacturerData&);
         void findAliases();
