@@ -18,7 +18,6 @@ using namespace std;
 
 struct MfrRecord;
 void trimQuotes(string&);
-bool caseInsensitiveStrcmp(const string&, const string&);
 string strToUpper(string);
 
 // Read in CSV data from a file with 6 digit codes and variable length company names.

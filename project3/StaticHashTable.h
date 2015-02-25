@@ -13,12 +13,14 @@ struct ManufacturerInfo;
 struct UPCInfo;
 class MfrLinkedList;
 
-// We don't need to store the key since you can deterministically find this.
+// Store the key in case we later search for a key that wasn't known originally
+// but that collides with an actual key.
 struct MfrRecord {
     ManufacturerInfo* mInfo;
     bool alias;
-    MfrRecord(ManufacturerInfo* inMInfo, bool inAlias) :
-        mInfo(inMInfo), alias(inAlias) {}
+    unsigned int UPC;
+    MfrRecord(ManufacturerInfo* inMInfo, bool inAlias, unsigned int inUPC) :
+        mInfo(inMInfo), alias(inAlias), UPC(inUPC) {}
 };
 
 class StaticHashTable {
@@ -46,6 +48,7 @@ class StaticHashTable {
         void addRecords(UPCInfo** allUPCs);
         void printHashInfo();
         ManufacturerInfo* getRecord(unsigned int key);
+        void printTable();
 
     private:
         unsigned long _numRecords;

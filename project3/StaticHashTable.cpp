@@ -41,8 +41,8 @@ StaticHashTable::StaticHashTable(unsigned long numRecords) :
     // Choose a and b, two constants between 1 and _prime - 1
     // Assume RAND_MAX is at least 2^31, so RAND_MAX^2 is near numeric_limits<unsigned long>::max()
     srand(time(NULL));
-    _a = ((unsigned long)pow(rand(), 2)) % _prime;
-    _b = ((unsigned long)pow(rand(), 2)) % _prime;
+    _a = ((unsigned long)pow(rand() + 1, 2)) % _prime;
+    _b = ((unsigned long)pow(rand() + 1, 2)) % _prime;
     _allRecords = new Entry*[_tableSize];
     for (unsigned long i = 0; i < _tableSize; i++)
         _allRecords[i] = NULL;
@@ -116,7 +116,7 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
                 thisTable->_a = 0;
                 thisTable->_b = 0;
                 thisTable->MfrTable = new MfrRecord*[1];
-                thisTable->MfrTable[0] = new MfrRecord(theCollisions->head->mInfo, theCollisions->head->alias);
+                thisTable->MfrTable[0] = new MfrRecord(theCollisions->head->mInfo, theCollisions->head->alias, theCollisions->head->UPC);
             } else {
                 thisTable->_tableSize = (unsigned int)pow(theCollisions->numItems, 2);
                 thisTable->MfrTable = new MfrRecord*[thisTable->_tableSize]();
@@ -131,8 +131,8 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
                         }
                     }
                     collisionFree = true; // unless proven otherwise
-                    thisTable->_a = rand() % _prime;
-                    thisTable->_b = rand() % _prime;
+                    thisTable->_a = (rand()+1) % _prime;
+                    thisTable->_b = (rand()+1) % _prime;
                     LLNode* thisNode = theCollisions->head;
                     for (unsigned int k = 0; k < theCollisions->numItems; k++) {
                         unsigned int h = (((thisTable->_a * thisNode->UPC + thisTable->_b) % _prime) % thisTable->_tableSize);
@@ -140,7 +140,7 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
                             collisionFree = false;
                             break;
                         } else {
-                            thisTable->MfrTable[h] = new MfrRecord(thisNode->mInfo, thisNode->alias);
+                            thisTable->MfrTable[h] = new MfrRecord(thisNode->mInfo, thisNode->alias, thisNode->UPC);
                         }
                         thisNode = thisNode->next;
                     } 
@@ -151,6 +151,7 @@ void StaticHashTable::addRecords(UPCInfo** allUPCs) {
         }
     }
     //printHashInfo();
+    //printTable();
 }
 
 ManufacturerInfo* StaticHashTable::getRecord(unsigned int key) {
@@ -158,8 +159,23 @@ ManufacturerInfo* StaticHashTable::getRecord(unsigned int key) {
     if (_allRecords[h1] != NULL) {
         SecondLevelHashTable* secondaryTable = _allRecords[h1]->noCollisions;
         unsigned int h2 = (((secondaryTable->_a * key + secondaryTable->_b) % _prime) % secondaryTable->_tableSize);
-        if (secondaryTable->MfrTable[h2] != NULL)
+        if (secondaryTable->MfrTable[h2] != NULL && secondaryTable->MfrTable[h2]->UPC == key)
             return secondaryTable->MfrTable[h2]->mInfo;
     }
     return NULL;
+}
+
+void StaticHashTable::printTable() {
+    for (unsigned long i = 0; i < _tableSize; i++) {
+        cout << "i=" << i << endl;
+        if (_allRecords[i] != NULL) {
+            cout << "  _a=" << _allRecords[i]->noCollisions->_a << ", "
+                 << "  _b=" << _allRecords[i]->noCollisions->_b << ", "
+                 << " _tS=" << _allRecords[i]->noCollisions->_tableSize << "." << endl;
+            for (unsigned int j = 0; j < _allRecords[i]->noCollisions->_tableSize; j++) {
+               if (_allRecords[i]->noCollisions->MfrTable[j] != NULL)
+                   cout << "  j=" << j << " " << _allRecords[i]->noCollisions->MfrTable[j]->mInfo->name << endl;
+            }  
+        }
+    }
 }
