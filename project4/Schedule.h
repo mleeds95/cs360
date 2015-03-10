@@ -1,6 +1,6 @@
 // File: Schedule.h
 // Author: Matthew Leeds
-// Last Edit: 2015-03-09
+// Last Edit: 2015-03-10
 
 #pragma once
 #include "Activity.h"
@@ -11,18 +11,19 @@ using namespace std;
 
 class Schedule {
     public:
-        Schedule();
+        Schedule(); // reads in _endTime and _numActivities
         ~Schedule();
-        void recordActivities();
+        void recordActivities(); // reads all activities from stdin
         void sortByFinishTime();
-        void findOptimalSchedule();
+        void findOptimalSchedule(); // uses an optimal greedy algorithm
         void printOptimalSchedule();
         
     private:
-        uint _endTime;
-        uint _numActivities;
-        Activity** _Activities;
-        Activity** _optimalSchedule;
+        uint _endTime; // >= latest finish time
+        uint _numActivities; // total number of activities
+        uint _numUsedActivities; // nmuber used in optimal schedule
+        Activity** _Activities; // all activities
+        Activity** _optimalSchedule; // schedule with maximum resource usage
         void _mergeSort(uint start, uint end);
         void _merge(uint start, uint middle, uint end);
 };

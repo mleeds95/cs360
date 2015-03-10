@@ -1,6 +1,6 @@
 // File: Schedule.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-03-09
+// Last Edit: 2015-03-10
 
 #include <iostream>
 #include <cstdlib>
@@ -20,6 +20,7 @@ Schedule::~Schedule() {
         delete _Activities[i];
     }
     delete[] _Activities;
+    delete[] _optimalSchedule;
 }
 
 void Schedule::recordActivities() {
@@ -43,6 +44,7 @@ void Schedule::sortByFinishTime() {
 }
 
 // sort in Theta(n lg n) time using a recursive merge sort
+// We could have used _endTime for a linear sort, but that may waste a lot of time and memory.
 void Schedule::_mergeSort(uint start, uint end) {
     if (start < end) {
         uint middle = start + ((end - start) / 2);
@@ -85,9 +87,24 @@ void Schedule::_merge(uint start, uint middle, uint end) {
 }
 
 void Schedule::findOptimalSchedule() {
-    //TODO
+    if (_numActivities == 0)
+        return;
+    _optimalSchedule = new Activity*[_numActivities];
+    _optimalSchedule[0] = _Activities[0];
+    uint j = 0; // index of last chosen activity
+    for (uint i = 1; i < _numActivities; i++) {
+        if (_Activities[i]->getStartTime() >= _Activities[j]->getFinishTime())
+            _optimalSchedule[++j] = _Activities[i];
+    }
+    _numUsedActivities = j + 1;
 }
 
+// print the contents of _optimalSchedule to stdout
 void Schedule::printOptimalSchedule() {
-    //TODO
+    cout << "Schedule" << endl;
+    for (uint i = 0; i < _numUsedActivities; i++) {
+        Activity* pActivity = _optimalSchedule[i];
+        cout << pActivity->getName();
+        cout << " from " << pActivity->getStartTime() << " to " << pActivity->getFinishTime() << endl;
+    }
 }

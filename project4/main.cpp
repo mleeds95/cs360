@@ -1,7 +1,7 @@
 // File: main.cpp
 // Author: Matthew Leeds
 // Purpose: CS 360, Project 4 (activity scheduling)
-// Last Edit: 2015-03-09
+// Last Edit: 2015-03-10
 
 #include <iostream>
 #include <cstdlib>
@@ -14,8 +14,8 @@ int main() {
     Schedule* pSchedule = new Schedule();
     pSchedule->recordActivities();
     pSchedule->sortByFinishTime();
-    //pSchedule->findOptimalSchedule();
-    //pSchedule->printOptimalSchedule();
+    pSchedule->findOptimalSchedule();
+    pSchedule->printOptimalSchedule();
     delete pSchedule;
     return 0;
 }
