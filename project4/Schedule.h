@@ -1,6 +1,6 @@
 // File: Schedule.h
 // Author: Matthew Leeds
-// Last Edit: 2015-03-10
+// Last Edit: 2015-03-11
 
 #pragma once
 #include "Activity.h"
@@ -24,6 +24,5 @@ class Schedule {
         uint _numUsedActivities; // nmuber used in optimal schedule
         Activity** _Activities; // all activities
         Activity** _optimalSchedule; // schedule with maximum resource usage
-        void _mergeSort(uint start, uint end);
-        void _merge(uint start, uint middle, uint end);
+        void _countingSort(short digit);
 };

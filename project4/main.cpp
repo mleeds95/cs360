@@ -1,7 +1,7 @@
 // File: main.cpp
 // Author: Matthew Leeds
 // Purpose: CS 360, Project 4 (activity scheduling)
-// Last Edit: 2015-03-10
+// Last Edit: 2015-03-11
 
 #include <iostream>
 #include <cstdlib>

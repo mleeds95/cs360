@@ -1,10 +1,11 @@
 // File: Schedule.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-03-10
+// Last Edit: 2015-03-11
 
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <cmath>
 #include "Schedule.h"
 
 Schedule::Schedule() {
@@ -38,54 +39,44 @@ void Schedule::recordActivities() {
     }
 }
 
-// make the initial call to mergeSort to sort activities in order of ascending finish time
+// radix sort activities by making calls to counting sort for each digit
 void Schedule::sortByFinishTime() {
-    _mergeSort(0, _numActivities - 1);
-}
-
-// sort in Theta(n lg n) time using a recursive merge sort
-// We could have used _endTime for a linear sort, but that may waste a lot of time and memory.
-void Schedule::_mergeSort(uint start, uint end) {
-    if (start < end) {
-        uint middle = start + ((end - start) / 2);
-        _mergeSort(start, middle);
-        _mergeSort(middle + 1, end);
-        _merge(start, middle, end);
+    short numDigits = (uint) ceil(log10((double)_endTime + 1));
+    for (short i = 0; i < numDigits; i++) {
+        _countingSort(i);
     }
 }
 
-// merge two sorted subarrays of _Activities (order by finish time)
-void Schedule::_merge(uint start, uint middle, uint end) {
-    // copy the data into two temporary arrays
-    uint arr1length = middle - start + 1;
-    uint arr2length = end - middle;
-    Activity* arr1[arr1length];
-    Activity* arr2[arr2length];
-    for (uint i = start; i <= middle; i++)
-        arr1[i - start] = _Activities[i];
-    for (uint j = middle + 1; j <= end; j++)
-        arr2[j - middle - 1] = _Activities[j];
-    // merge the data sets by copying from one or the other on each iteration
-    uint k; // _Activites counter
-    uint l = 0; // arr1 counter
-    uint m = 0; // arr2 counter
-    for (k = start; k <= end; k++) {
-        if (l >= arr1length) {
-            _Activities[k] = arr2[m];
-            m++;
-        } else if (m >= arr2length) {
-            _Activities[k] = arr1[l];
-            l++;
-        } else if (arr1[l]->getFinishTime() <= arr2[m]->getFinishTime()) {
-            _Activities[k] = arr1[l];
-            l++;
-        } else {
-            _Activities[k] = arr2[m];
-            m++;
-        }
+void Schedule::_countingSort(short digit) {
+    uint* counts = new uint[10](); // initialize to 0
+    // First count the number of instances of each possible value
+    for (uint i = 0; i < _numActivities; i++) {
+        short thisDigit = (_Activities[i]->getFinishTime() / (uint)pow(10, digit)) % 10;
+        counts[thisDigit]++;
     }
+    // Now calculate the correct indices for each.
+    for (uint i = 1; i < 10; i++)
+        counts[i] += counts[i-1];
+    // Copy elements into their final positions using another array
+    Activity** sortedActivities = new Activity*[_numActivities];
+    for (int i = _numActivities - 1; i >= 0; i--) {
+        short thisDigit = (_Activities[i]->getFinishTime() / (uint)pow(10, digit)) % 10;
+        sortedActivities[counts[thisDigit] - 1] = _Activities[i];
+        counts[thisDigit]--;
+    }
+    // point _Activities to the sorted version
+    //delete[] _Activities;
+    //_Activities = sortedActivities;
+    for (uint i = 0; i < _numActivities; i++) {
+        _Activities[i] = sortedActivities[i];
+    }
+    // free memory
+    delete[] counts;
+    delete[] sortedActivities;
 }
 
+// Use a greedy strategy (picking the earliest-finishing compatible activity)
+// to find a maximally filled schedule in linear time.
 void Schedule::findOptimalSchedule() {
     if (_numActivities == 0)
         return;
