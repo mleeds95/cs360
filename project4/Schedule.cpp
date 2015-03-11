@@ -24,9 +24,9 @@ Schedule::~Schedule() {
     delete[] _optimalSchedule;
 }
 
+// receive activity information from stdin, assume it's "<name>,<start time>,<finish time>"
 void Schedule::recordActivities() {
     _Activities = new Activity*[_numActivities];
-    // receive activity information from stdin, assume it's "<name>,<start time>,<finish time>"
     for (unsigned int i = 0; i < _numActivities; i++) {
         string thisActivity;
         cin >> thisActivity;
@@ -39,7 +39,8 @@ void Schedule::recordActivities() {
     }
 }
 
-// radix sort activities by making calls to counting sort for each digit
+// Do a base 10 radix sort activities with calls to a counting sort function.
+// This takes O(n) time.
 void Schedule::sortByFinishTime() {
     short numDigits = (uint) ceil(log10((double)_endTime + 1));
     for (short i = 0; i < numDigits; i++) {
@@ -47,6 +48,7 @@ void Schedule::sortByFinishTime() {
     }
 }
 
+// Do a counting sort (stable, linear time) on a certain (base 10) digit of the finish times.
 void Schedule::_countingSort(short digit) {
     uint* counts = new uint[10](); // initialize to 0
     // First count the number of instances of each possible value
@@ -64,9 +66,7 @@ void Schedule::_countingSort(short digit) {
         sortedActivities[counts[thisDigit] - 1] = _Activities[i];
         counts[thisDigit]--;
     }
-    // point _Activities to the sorted version
-    //delete[] _Activities;
-    //_Activities = sortedActivities;
+    // copy the activity pointers in sorted order to _Activities
     for (uint i = 0; i < _numActivities; i++) {
         _Activities[i] = sortedActivities[i];
     }
@@ -82,12 +82,15 @@ void Schedule::findOptimalSchedule() {
         return;
     _optimalSchedule = new Activity*[_numActivities];
     _optimalSchedule[0] = _Activities[0];
-    uint j = 0; // index of last chosen activity
+    uint j = 0; // index of last chosen activity in _Activities
+    uint k = 0; // index of last activity in _optimalSchedule
     for (uint i = 1; i < _numActivities; i++) {
-        if (_Activities[i]->getStartTime() >= _Activities[j]->getFinishTime())
-            _optimalSchedule[++j] = _Activities[i];
+        if (_Activities[i]->getStartTime() >= _Activities[j]->getFinishTime()) {
+            _optimalSchedule[++k] = _Activities[i];
+            j = i;
+        }
     }
-    _numUsedActivities = j + 1;
+    _numUsedActivities = k + 1;
 }
 
 // print the contents of _optimalSchedule to stdout
