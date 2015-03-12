@@ -3,9 +3,6 @@
 // Purpose: CS 360, Project 4 (activity scheduling)
 // Last Edit: 2015-03-11
 
-#include <iostream>
-#include <cstdlib>
-#include <string>
 #include "Schedule.h"
 
 using namespace std;
