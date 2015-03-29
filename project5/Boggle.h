@@ -1,12 +1,14 @@
 // File: Boggle.h
 // Author: Matthew Leeds
-// Last Edit: 2015-03-28
+// Last Edit: 2015-03-29
 
 #pragma once
 #include <fstream>
-#include <cstdlib>
+#include <vector>
 
 using namespace std;
+
+typedef unsigned int uint;
 
 class Boggle {
     public:
@@ -15,10 +17,14 @@ class Boggle {
         void readBoardFile(ifstream& boardFile);
         void readDictFile(ifstream& dictFile);
         void printBoard();
-        char& operator()(int i, int j) { return _board[_numRows * i + _numCols]; }
+        void printDict();
+        void sortDict();
+        void findWords();
+        char& getBoardVal(uint i, uint j);
 
     private:
         unsigned int _numRows;
         unsigned int _numCols;
         char* _board;    
+        vector<string>* _dict;
 };

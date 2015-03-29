@@ -1,7 +1,7 @@
 // File: main.cpp
 // Author: Matthew Leeds
 // Purpose: CS 360, Project 5 (Boggle)
-// Last Edit: 2015-03-28
+// Last Edit: 2015-03-29
 
 #include "Boggle.h"
 
@@ -13,5 +13,7 @@ const char* DICT_FILENAME = "dict.txt";
 int main() {
     Boggle myBoggle = Boggle(BOARD_FILENAME, DICT_FILENAME);
     myBoggle.printBoard();
+    myBoggle.sortDict();
+    myBoggle.findWords();
     return 0;
 }

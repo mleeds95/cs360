@@ -1,8 +1,8 @@
 # File: Makefile
 # Author: Matthew Leeds
-# Last Edit: 2015-03-28
+# Last Edit: 2015-03-29
 
-CC=clang++-3.5
+CC=g++
 CFLAGS=-Wall -g -std=c++98
 OBJ=main.o Boggle.o
 
@@ -10,7 +10,7 @@ project5: $(OBJ)
 	$(CC) $(CFLAGS) -o project5 $(OBJ)
 
 main.o: main.cpp Boggle.cpp
-	$(CC) $(CFLAGS) -c main.cpp Boggle.cpp
+	$(CC) $(CFLAGS) -c main.cpp
 
 Boggle.o: Boggle.cpp
 	$(CC) $(CFLAGS) -c Boggle.cpp
