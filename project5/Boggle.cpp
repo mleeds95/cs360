@@ -22,8 +22,10 @@ Boggle::Boggle(const char* boardFilename, const char* dictFilename) {
     _board = new char[_numRows * _numCols];
     readBoardFile(boardFile);
     boardFile.close();
-    // Keep track of whether nodes have been visited and expanded with "colors".
-    _boardColors = new Color[_numRows * _numCols];
+    // Keep track of whether nodes have been visited
+    _boardSeen = new bool[_numRows * _numCols];
+    _markAllSeen(false);
+    // Read in data from the dictionary file.
     ifstream dictFile(dictFilename);
     if (!dictFile.is_open()) {
         cerr << "Error: " << dictFilename << " not found!" << endl;
@@ -33,14 +35,23 @@ Boggle::Boggle(const char* boardFilename, const char* dictFilename) {
     _startChars = new bool[26];
     readDictFile(dictFile);
     dictFile.close();
-    printStartChars();
 }
 
 Boggle::~Boggle() {
     delete[] _board;
-    delete[] _boardColors;
+    delete[] _boardSeen;
     delete[] _startChars;
     delete _dict;
+}
+
+void Boggle::testWords() {
+    cout << endl << "TESTING" << endl;
+    cout << "THE ";
+    cout << _isValidWord("THE") << endl;
+    cout << "TO ";
+    cout << _isValidWord("TO") << endl;
+    cout << "MATTHEW ";
+    cout << _isValidWord("MATTHEW") << endl;
 }
 
 char& Boggle::getBoardVal(uint i, uint j) {
@@ -51,12 +62,12 @@ void Boggle::setBoardVal(uint i, uint j, char c) {
     _board[_numRows*i + j] = c;
 }
 
-Color Boggle::getBoardColor(uint i, uint j) {
-    return _boardColors[_numRows*i + j];
+bool Boggle::getBoardSeen(uint i, uint j) {
+    return _boardSeen[_numRows*i + j];
 }
 
-void Boggle::setBoardColor(uint i, uint j, Color c) {
-    _boardColors[_numRows*i + j] = c;
+void Boggle::setBoardSeen(uint i, uint j, bool b) {
+    _boardSeen[_numRows*i + j] = b;
 }
 
 // Read characters from the given file, assuming they're formatted correctly.
@@ -65,7 +76,6 @@ void Boggle::readBoardFile(ifstream& boardFile) {
         for (uint j = 0; j < _numCols; ++j) {
             string val;
             boardFile >> val;
-            //_board[_numRows*i + j] = val.c_str()[0];
             setBoardVal(i, j, val.c_str()[0]);
         }
     }
@@ -92,20 +102,10 @@ void Boggle::printBoard() {
     cout << endl;
 }
 
-void Boggle::printBoardColors() {
+void Boggle::printBoardSeen() {
     for (uint i = 0; i < _numRows; ++i) {
         for (uint j = 0; j < _numCols; ++j) {
-            switch(getBoardColor(i, j)) {
-                case WHITE:
-                    cout << "WHITE ";
-                    break;
-                case GRAY:
-                    cout << "GRAY ";
-                    break;
-                case BLACK:
-                    cout << "BLACK ";
-                    break;
-            }
+            cout << getBoardSeen(i, j) << " ";
         }
         cout << endl;
     }
@@ -114,12 +114,6 @@ void Boggle::printBoardColors() {
 void Boggle::printDict() {
     for (vector<string>::size_type i = 0; i < _dict->size(); ++i) {
         cout << (*_dict)[i] << endl;
-    }
-}
-
-void Boggle::printStartChars() {
-    for (uint i = 0; i < 26; ++i) {
-        cout << _startChars[i] << endl;
     }
 }
 
@@ -134,14 +128,15 @@ void Boggle::sortDict() {
 
 // Do a binary search (lg n) for a word in the dictionary.
 bool Boggle::_isValidWord(string check) {
+    cout << "_isValidWord(" + check + ")" << endl;
     if (check.length() < 3)
         return false;
-    return binary_search(_dict.begin(), _dict.end(), check);
+    return binary_search(_dict->begin(), _dict->end(), check);
 }
 
-void Boggle::_paintWhite() {
+void Boggle::_markAllSeen(bool b) {
     for (uint i = 0; i < _numRows * _numCols; ++i)
-        _boardColors[i] = WHITE;
+        _boardSeen[i] = b;
 }
 
 // Valid words are paths of 3 or more adjacent, non-repeating letters
@@ -150,7 +145,7 @@ void Boggle::_paintWhite() {
 void Boggle::findWords() {
     for (uint i = 0; i < _numRows; ++i) {
         for (uint j = 0; j < _numCols; ++j) {
-            _paintWhite();
+            _markAllSeen(false);
             if (_isStartChar(getBoardVal(i, j)))
                 _dfsVisit(i, j, "");
         }
@@ -160,10 +155,15 @@ void Boggle::findWords() {
 // Do a Depth-First Search from the specified location.
 // If we reach a leaf node, check if it's a word.
 void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
-    if (getBoardColor(i, j) != WHITE)
+    if (getBoardSeen(i, j))
         return;
-    currentStr += String(getBoardVal(i, j));
-    setBoardColor(i, j, GRAY);
+    cout << "_dfsVisit(" << i << "," << j << "," << currentStr << ")" << endl;
+    string str(1, getBoardVal(i, j));
+    // TODO add Qu special case
+    currentStr += str;
+    setBoardSeen(i, j, true);
+    if (_isValidWord(currentStr))
+        cout << currentStr << endl;
     bool top = (i > 0);
     bool left = (j > 0);
     bool right = (j < _numCols - 1);
@@ -182,7 +182,5 @@ void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
         _dfsVisit(i, j-1, currentStr);
     if (right)
         _dfsVisit(i, j+1, currentStr);
-    setBoardColor(i, j, BLACK);
-    if (_isValidWord(currentStr))
-        cout << currentStr << endl;
+    setBoardSeen(i, j, false);
 }
