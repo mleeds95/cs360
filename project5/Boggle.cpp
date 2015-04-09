@@ -38,17 +38,9 @@ Boggle::Boggle(const char* boardFilename, const char* dictFilename) {
 Boggle::~Boggle() {
     delete[] _board;
     delete[] _boardSeen;
-    delete _dictTrie;
-}
-
-void Boggle::testWords() {
-    cout << endl << "TESTING" << endl;
-    cout << "THE ";
-    cout << _isValidWord("THE") << endl;
-    cout << "TO ";
-    cout << _isValidWord("TO") << endl;
-    cout << "MATTHEW ";
-    cout << _isValidWord("MATTHEW") << endl;
+    for (uint i = 0; i < 26; ++i)
+        if (_dictTrie[i] != NULL) delete _dictTrie[i];
+    delete[] _dictTrie;
 }
 
 char& Boggle::getBoardVal(uint i, uint j) {
@@ -200,31 +192,26 @@ void Boggle::findWords() {
 // Do a Depth-First Search from the specified location.
 // If we reach a leaf node, check if it's a word.
 void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
+    if (i < 0 || i >= _numRows) return;
+    if (j < 0 || j >= _numCols) return;
     if (getBoardSeen(i, j)) return;
     //cout << "_dfsVisit(" << i << "," << j << "," << currentStr << ")" << endl;
     string str(1, getBoardVal(i, j));
-    // TODO add Qu special case
+    // Account for the implied U after every Q.
+    if (str == "Q") str += "U";
     currentStr += str;
     if (!_isValidPrefix(currentStr)) return;
+    //cout << "checking " << currentStr << endl;
     if (_isValidWord(currentStr)) cout << currentStr << endl;
     setBoardSeen(i, j, true);
-    bool top = (i > 0);
-    bool left = (j > 0);
-    bool right = (j < _numCols - 1);
-    bool bottom = (i < _numRows - 1);
-    if (top) {
-        _dfsVisit(i-1, j, currentStr);
-        if (left) _dfsVisit(i-1, j-1, currentStr);
-        if (right) _dfsVisit(i-1, j+1, currentStr);
-    }
-    if (bottom) {
-        _dfsVisit(i+1, j, currentStr);
-        if (left) _dfsVisit(i+1, j-1, currentStr);
-        if (right) _dfsVisit(i+1, j+1, currentStr);
-    }
-    if (left)
-        _dfsVisit(i, j-1, currentStr);
-    if (right)
-        _dfsVisit(i, j+1, currentStr);
+    // Visit all adjacent nodes.
+    _dfsVisit(i-1, j, currentStr);
+    _dfsVisit(i-1, j-1, currentStr);
+    _dfsVisit(i-1, j+1, currentStr);
+    _dfsVisit(i+1, j, currentStr);
+    _dfsVisit(i+1, j-1, currentStr);
+    _dfsVisit(i+1, j+1, currentStr);
+    _dfsVisit(i, j-1, currentStr);
+    _dfsVisit(i, j+1, currentStr);
     setBoardSeen(i, j, false);
 }

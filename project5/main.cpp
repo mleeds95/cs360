@@ -12,7 +12,6 @@ const char* DICT_FILENAME = "dict.txt";
 
 int main() {
     Boggle myBoggle = Boggle(BOARD_FILENAME, DICT_FILENAME);
-    myBoggle.printBoard();
     myBoggle.findWords();
     return 0;
 }

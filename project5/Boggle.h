@@ -23,6 +23,8 @@ struct Node {
         lastLetter = b;
     }
     ~Node() {
+        for (vector<Node*>::iterator it = children->begin(); it != children->end(); ++it)
+            delete *it;
         delete children;
     }
 };
@@ -40,7 +42,6 @@ class Boggle {
         void setBoardVal(uint i, uint j, char c);
         bool getBoardSeen(uint i, uint j);
         void setBoardSeen(uint i, uint j, bool b);
-        void testWords();
 
     private:
         unsigned int _numRows;
