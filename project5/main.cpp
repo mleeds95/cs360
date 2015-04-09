@@ -13,7 +13,6 @@ const char* DICT_FILENAME = "dict.txt";
 int main() {
     Boggle myBoggle = Boggle(BOARD_FILENAME, DICT_FILENAME);
     myBoggle.printBoard();
-    myBoggle.printBoardSeen();
     myBoggle.findWords();
     return 0;
 }

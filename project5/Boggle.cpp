@@ -126,13 +126,14 @@ void Boggle::_printDictTrieNode(Node* n) {
 }
 
 void Boggle::printBoard() {
+    cout << endl;
     for (uint i = 0; i < _numRows; ++i) {
         for (uint j = 0; j < _numCols; ++j) {
             cout << getBoardVal(i, j) << " ";
         }
         cout << endl;
     }
-    cout << endl;
+    cout << endl << endl;
 }
 
 void Boggle::printBoardSeen() {
@@ -175,8 +176,7 @@ Node* Boggle::_getTrieChild(Node* n, char& c) {
 
 // Use _dictTrie to check if a given string is a full word in the trie.
 bool Boggle::_isValidWord(string s) {
-    if (s.length() == 0) return false;
-    if (s.length() == 1 && _dictTrie[s[0] - 65] != NULL) return true;
+    if (s.length() < 3) return false;
     return _checkTrie(_dictTrie[s[0] - 65], s.substr(1), true);
 }
 
@@ -201,7 +201,7 @@ void Boggle::findWords() {
 // If we reach a leaf node, check if it's a word.
 void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
     if (getBoardSeen(i, j)) return;
-    cout << "_dfsVisit(" << i << "," << j << "," << currentStr << ")" << endl;
+    //cout << "_dfsVisit(" << i << "," << j << "," << currentStr << ")" << endl;
     string str(1, getBoardVal(i, j));
     // TODO add Qu special case
     currentStr += str;
