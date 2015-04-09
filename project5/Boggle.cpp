@@ -84,6 +84,7 @@ void Boggle::readDictFile(ifstream& dictFile) {
     } 
 }
 
+// Insert the necessary node(s) into the trie for the given string.
 void Boggle::_insertTrieNode(Node* n, string s) {
     if (s.length() == 0) return;
     // If n already has a child with the next letter, add the rest of the string from there.
@@ -99,24 +100,7 @@ void Boggle::_insertTrieNode(Node* n, string s) {
     }
 }
 
-void Boggle::_printDictTrie() {
-    for (uint i = 0; i < 26; ++i) {
-        cout << endl << "ROOT NODE " << i << endl;
-        _printDictTrieNode(_dictTrie[i]);
-        cout << endl;
-    }
-}
-        
-void Boggle::_printDictTrieNode(Node* n) {
-    if (n != NULL) {
-        cout << " " << n->val << " (";
-        for (vector<Node*>::iterator it = n->children->begin(); it != n->children->end(); ++it) {
-            _printDictTrieNode(*it);
-        }
-        cout << ")";
-    }
-}
-
+// print the Boggle board to stdout.
 void Boggle::printBoard() {
     cout << endl;
     for (uint i = 0; i < _numRows; ++i) {
@@ -128,6 +112,7 @@ void Boggle::printBoard() {
     cout << endl << endl;
 }
 
+// print the values in _boardSeen to stdout.
 void Boggle::printBoardSeen() {
     for (uint i = 0; i < _numRows; ++i) {
         for (uint j = 0; j < _numCols; ++j) {
@@ -150,9 +135,10 @@ bool Boggle::_checkTrie(Node* n, string s, bool checkFull) {
     if (n == NULL) return false;
     Node* nextNode = _getTrieChild(n, s[0]);
     if (nextNode != NULL) {
-        if (s.length() == 1)
+        if (s.length() == 1) // we're at the end of the phrase
             return (checkFull ? nextNode->lastLetter : true);
-        return _checkTrie(nextNode, s.substr(1), checkFull);
+        else // recursively look for the rest of the phrase
+            return _checkTrie(nextNode, s.substr(1), checkFull);
     } else {
         return false;
     }
@@ -172,6 +158,7 @@ bool Boggle::_isValidWord(string s) {
     return _checkTrie(_dictTrie[s[0] - 65], s.substr(1), true);
 }
 
+// Mark every node on the board as seen or unseen.
 void Boggle::_markAllSeen(bool b) {
     for (uint i = 0; i < _numRows * _numCols; ++i)
         _boardSeen[i] = b;
@@ -195,16 +182,15 @@ void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
     if (i < 0 || i >= _numRows) return;
     if (j < 0 || j >= _numCols) return;
     if (getBoardSeen(i, j)) return;
-    //cout << "_dfsVisit(" << i << "," << j << "," << currentStr << ")" << endl;
     string str(1, getBoardVal(i, j));
     // Account for the implied U after every Q.
     if (str == "Q") str += "U";
     currentStr += str;
     if (!_isValidPrefix(currentStr)) return;
-    //cout << "checking " << currentStr << endl;
     if (_isValidWord(currentStr)) cout << currentStr << endl;
+    // Make sure we don't reuse this node on this path.
     setBoardSeen(i, j, true);
-    // Visit all adjacent nodes.
+    // Visit all adjacent nodes (invalid locations will be ignored)
     _dfsVisit(i-1, j, currentStr);
     _dfsVisit(i-1, j-1, currentStr);
     _dfsVisit(i-1, j+1, currentStr);
@@ -213,5 +199,6 @@ void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
     _dfsVisit(i+1, j+1, currentStr);
     _dfsVisit(i, j-1, currentStr);
     _dfsVisit(i, j+1, currentStr);
+    // Mark this unseen so it can be included in later paths.
     setBoardSeen(i, j, false);
 }

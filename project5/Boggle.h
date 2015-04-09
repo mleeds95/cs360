@@ -55,7 +55,5 @@ class Boggle {
         bool _isValidWord(string);
         bool _checkTrie(Node* n, string s, bool checkFull);
         void _insertTrieNode(Node* thisNode, string s);
-        void _printDictTrie();
-        void _printDictTrieNode(Node* n);
         Node* _getTrieChild(Node* n, char& c);
 };
