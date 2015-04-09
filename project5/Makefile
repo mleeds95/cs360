@@ -3,7 +3,7 @@
 # Last Edit: 2015-03-29
 
 CC=g++
-CFLAGS=-Wall -g -std=c++98
+CFLAGS=-Wall -std=c++98
 OBJ=main.o Boggle.o
 
 project5: $(OBJ)
