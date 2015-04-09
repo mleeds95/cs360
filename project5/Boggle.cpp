@@ -44,19 +44,19 @@ Boggle::~Boggle() {
 }
 
 char& Boggle::getBoardVal(uint i, uint j) {
-    return _board[_numRows*i + j];
+    return _board[_numCols*i + j];
 }
 
 void Boggle::setBoardVal(uint i, uint j, char c) {
-    _board[_numRows*i + j] = c;
+    _board[_numCols*i + j] = c;
 }
 
 bool Boggle::getBoardSeen(uint i, uint j) {
-    return _boardSeen[_numRows*i + j];
+    return _boardSeen[_numCols*i + j];
 }
 
 void Boggle::setBoardSeen(uint i, uint j, bool b) {
-    _boardSeen[_numRows*i + j] = b;
+    _boardSeen[_numCols*i + j] = b;
 }
 
 // Read characters from the given file, assuming they're formatted correctly.
