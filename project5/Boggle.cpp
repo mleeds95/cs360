@@ -1,6 +1,6 @@
 // File: Boggle.cpp
 // Author: Matthew Leeds
-// Last Edit: 2015-04-08
+// Last Edit: 2015-04-09
 
 #include <string>
 #include <iostream>
@@ -31,8 +31,6 @@ Boggle::Boggle(const char* boardFilename, const char* dictFilename) {
         cerr << "Error: " << dictFilename << " not found!" << endl;
         return;
     }
-    _dict = new vector<string>();
-    _startChars = new bool[26];
     readDictFile(dictFile);
     dictFile.close();
 }
@@ -40,8 +38,7 @@ Boggle::Boggle(const char* boardFilename, const char* dictFilename) {
 Boggle::~Boggle() {
     delete[] _board;
     delete[] _boardSeen;
-    delete[] _startChars;
-    delete _dict;
+    delete _dictTrie;
 }
 
 void Boggle::testWords() {
@@ -83,12 +80,48 @@ void Boggle::readBoardFile(ifstream& boardFile) {
 
 // Read the dict file and record if we find words starting with each letter.
 // Assume we can trust the input and only ALL CAPS are used.
-// The std vector has constant time access.
+// Use a prefix tree so later we can stop searches that can't lead to any words.
 void Boggle::readDictFile(ifstream& dictFile) {
+    _dictTrie = new Node*[26]();
     string line;
-    while(getline(dictFile, line)) {
-        _dict->push_back(line);
-        _startChars[line[0] - 65] = true;
+    while (getline(dictFile, line)) {
+        if (_dictTrie[line[0] - 65] == NULL)
+            _dictTrie[line[0] - 65] = new Node(line[0], (line.length() == 1));
+        if (line.length() > 1)
+            _insertTrieNode(_dictTrie[line[0] - 65], line.substr(1));
+    } 
+}
+
+void Boggle::_insertTrieNode(Node* n, string s) {
+    if (s.length() == 0) return;
+    // If n already has a child with the next letter, add the rest of the string from there.
+    Node* nextNode = _getTrieChild(n, s[0]);
+    if (nextNode != NULL) {
+        if (s.length() == 1) nextNode->lastLetter = true;
+        else _insertTrieNode(nextNode, s.substr(1));
+    } else {
+        Node* newNode = new Node(s[0], (s.length() == 1));
+        newNode->parent = n;
+        n->children->push_back(newNode);
+        _insertTrieNode(newNode, s.substr(1));
+    }
+}
+
+void Boggle::_printDictTrie() {
+    for (uint i = 0; i < 26; ++i) {
+        cout << endl << "ROOT NODE " << i << endl;
+        _printDictTrieNode(_dictTrie[i]);
+        cout << endl;
+    }
+}
+        
+void Boggle::_printDictTrieNode(Node* n) {
+    if (n != NULL) {
+        cout << " " << n->val << " (";
+        for (vector<Node*>::iterator it = n->children->begin(); it != n->children->end(); ++it) {
+            _printDictTrieNode(*it);
+        }
+        cout << ")";
     }
 }
 
@@ -111,27 +144,40 @@ void Boggle::printBoardSeen() {
     }
 }
 
-void Boggle::printDict() {
-    for (vector<string>::size_type i = 0; i < _dict->size(); ++i) {
-        cout << (*_dict)[i] << endl;
+// Use _dictTrie to check if a given string is a prefix for any word.
+bool Boggle::_isValidPrefix(string s) {
+    if (s.length() == 0) return false;
+    if (s.length() == 1 && _dictTrie[s[0] - 65] != NULL) return true;
+    return _checkTrie(_dictTrie[s[0] - 65], s.substr(1), false);
+}
+
+// Checks whether the given string exists in the trie, starting at the given node.
+// If checkFull is true, only return true if we're at the last letter of a word when the search terminates.
+bool Boggle::_checkTrie(Node* n, string s, bool checkFull) {
+    if (n == NULL) return false;
+    Node* nextNode = _getTrieChild(n, s[0]);
+    if (nextNode != NULL) {
+        if (s.length() == 1)
+            return (checkFull ? nextNode->lastLetter : true);
+        return _checkTrie(nextNode, s.substr(1), checkFull);
+    } else {
+        return false;
     }
 }
 
-bool Boggle::_isStartChar(char& c) {
-    return _startChars[c - 65];
+// Search the given node's children for a character, returning NULL if it's not found or its Node if it is.
+Node* Boggle::_getTrieChild(Node* n, char& c) {
+    for (vector<Node*>::iterator it = n->children->begin(); it != n->children->end(); ++it) {
+        if ((*it)->val == c) return *it;
+    }
+    return NULL;
 }
 
-// The built-in sort is n lg n.
-void Boggle::sortDict() {
-    sort(_dict->begin(), _dict->end());
-}
-
-// Do a binary search (lg n) for a word in the dictionary.
-bool Boggle::_isValidWord(string check) {
-    cout << "_isValidWord(" + check + ")" << endl;
-    if (check.length() < 3)
-        return false;
-    return binary_search(_dict->begin(), _dict->end(), check);
+// Use _dictTrie to check if a given string is a full word in the trie.
+bool Boggle::_isValidWord(string s) {
+    if (s.length() == 0) return false;
+    if (s.length() == 1 && _dictTrie[s[0] - 65] != NULL) return true;
+    return _checkTrie(_dictTrie[s[0] - 65], s.substr(1), true);
 }
 
 void Boggle::_markAllSeen(bool b) {
@@ -146,8 +192,7 @@ void Boggle::findWords() {
     for (uint i = 0; i < _numRows; ++i) {
         for (uint j = 0; j < _numCols; ++j) {
             _markAllSeen(false);
-            if (_isStartChar(getBoardVal(i, j)))
-                _dfsVisit(i, j, "");
+            _dfsVisit(i, j, "");
         }
     }
 }
@@ -155,15 +200,14 @@ void Boggle::findWords() {
 // Do a Depth-First Search from the specified location.
 // If we reach a leaf node, check if it's a word.
 void Boggle::_dfsVisit(uint i, uint j, string currentStr) {
-    if (getBoardSeen(i, j))
-        return;
+    if (getBoardSeen(i, j)) return;
     cout << "_dfsVisit(" << i << "," << j << "," << currentStr << ")" << endl;
     string str(1, getBoardVal(i, j));
     // TODO add Qu special case
     currentStr += str;
+    if (!_isValidPrefix(currentStr)) return;
+    if (_isValidWord(currentStr)) cout << currentStr << endl;
     setBoardSeen(i, j, true);
-    if (_isValidWord(currentStr))
-        cout << currentStr << endl;
     bool top = (i > 0);
     bool left = (j > 0);
     bool right = (j < _numCols - 1);
